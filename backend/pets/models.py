@@ -9,7 +9,11 @@ class Pet(models.Model):
         ('cat', 'Cat'),
         ('ferret', 'Ferret'),
         ('tortoise', 'Tortoise'),
-        ('bird', 'Bird'),
+        ('rabbit', 'Rabbit'),
+         ('bird', 'Bird'),
+        ('hamster', 'Hamster'),
+        ('guinea_pig', 'Guinea Pig'),
+        ('snake', 'Snake'),
         ('other', 'Other'),
     ]
     
