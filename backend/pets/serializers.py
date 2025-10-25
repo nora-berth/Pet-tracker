@@ -39,7 +39,6 @@ class PetSerializer(serializers.ModelSerializer):
 
 
 class PetListSerializer(serializers.ModelSerializer):
-    """Simplified serializer for list views without nested data"""
     class Meta:
         model = Pet
         fields = ['id', 'name', 'species', 'breed', 'birth_date', 'photo', 'created_at']
