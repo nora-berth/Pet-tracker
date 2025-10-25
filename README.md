@@ -1,5 +1,3 @@
-"# Pet Tracker" 
-
 ## Setup Instructions
 
 ### Backend Setup
