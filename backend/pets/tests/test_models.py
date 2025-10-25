@@ -49,15 +49,15 @@ class TestPetModel:
 class TestWeightRecordModel:
     
     def test_create_weight_record(self):
-        pet = Pet.objects.create(name="Maxwell", species="dog")
+        pet = Pet.objects.create(name="Maxwell", species="snake")
         weight = WeightRecord.objects.create(
             pet=pet,
             date=date.today(),
-            weight=Decimal("25.5"),
+            weight=Decimal("2.5"),
             unit="kg"
         )
         assert weight.pet == pet
-        assert weight.weight == Decimal("25.5")
+        assert weight.weight == Decimal("2.5")
         assert weight.unit == "kg"
     
     def test_weight_record_with_notes(self):
@@ -72,17 +72,17 @@ class TestWeightRecordModel:
         assert weight.notes == "After diet program"
     
     def test_weight_record_relationship(self):
-        pet = Pet.objects.create(name="Bella Swan", species="dog")
+        pet = Pet.objects.create(name="Bella Swan", species="hamster")
         WeightRecord.objects.create(
             pet=pet,
             date=date(2025, 1, 1),
-            weight=Decimal("20.0"),
+            weight=Decimal("0.085"),
             unit="kg"
         )
         WeightRecord.objects.create(
             pet=pet,
             date=date(2025, 2, 1),
-            weight=Decimal("21.0"),
+            weight=Decimal("0.090"),
             unit="kg"
         )
         
