@@ -322,3 +322,100 @@ class TestPetUpdateAPI:
         assert pet.name == 'Max'  # Changed
         assert pet.species == 'dog'  # Unchanged
         assert pet.breed == 'Labrador'  # Unchanged
+
+@pytest.mark.django_db
+class TestPetDeleteAPI:
+    """Test DELETE /api/pets/{id}/ endpoint"""
+    
+    def test_delete_pet_success(self):
+        # Arrange
+        client = APIClient()
+        pet = Pet.objects.create(
+            name="ToDelete",
+            species="dog"
+        )
+        pet_id = pet.id
+        
+        assert Pet.objects.filter(id=pet_id).exists()
+        
+        # Act
+        url = reverse('pet-detail', kwargs={'pk': pet_id})
+        response = client.delete(url)
+        
+        # Assert
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        
+        assert not Pet.objects.filter(id=pet_id).exists()
+
+    def test_delete_pet_not_found(self):
+        # Arrange
+        client = APIClient()
+        non_existent_id = 99999
+        
+        # Act
+        url = reverse('pet-detail', kwargs={'pk': non_existent_id})
+        response = client.delete(url)
+        
+        # Assert
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_delete_pet_cascades_to_related_records(self):
+        # Arrange
+        client = APIClient()
+        pet = Pet.objects.create(name="TestPet", species="dog")
+        
+        # Create related records
+        weight = WeightRecord.objects.create(
+            pet=pet,
+            date=date.today(),
+            weight=Decimal("20.0"),
+            unit="kg"
+        )
+        vaccination = Vaccination.objects.create(
+            pet=pet,
+            vaccine_name="Rabies",
+            date_administered=date.today()
+        )
+        vet_visit = VetVisit.objects.create(
+            pet=pet,
+            date=date.today(),
+            reason="Checkup"
+        )
+        
+        pet_id = pet.id
+        weight_id = weight.id
+        vaccination_id = vaccination.id
+        vet_visit_id = vet_visit.id
+        
+        assert Pet.objects.filter(id=pet_id).exists()
+        assert WeightRecord.objects.filter(id=weight_id).exists()
+        assert Vaccination.objects.filter(id=vaccination_id).exists()
+        assert VetVisit.objects.filter(id=vet_visit_id).exists()
+        
+        # Act
+        url = reverse('pet-detail', kwargs={'pk': pet_id})
+        response = client.delete(url)
+        
+        # Assert
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        
+        assert not Pet.objects.filter(id=pet_id).exists()
+        assert not WeightRecord.objects.filter(id=weight_id).exists()
+        assert not Vaccination.objects.filter(id=vaccination_id).exists()
+        assert not VetVisit.objects.filter(id=vet_visit_id).exists()
+
+    def test_delete_pet_idempotent(self):
+        # Arrange
+        client = APIClient()
+        pet = Pet.objects.create(name="TestPet", species="dog")
+        url = reverse('pet-detail', kwargs={'pk': pet.id})
+        
+        # Act
+        response1 = client.delete(url) # First deletion
+        assert response1.status_code == status.HTTP_204_NO_CONTENT
+        assert not Pet.objects.filter(id=pet.id).exists()
+
+        response2 = client.delete(url) # Second deletion attempt
+        
+        # Assert
+        assert response2.status_code == status.HTTP_404_NOT_FOUND

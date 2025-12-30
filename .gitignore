@@ -40,6 +40,10 @@ build/
 .DS_Store
 Thumbs.db
 
+# Testing
+.coverage
+htmlcov/
+
 # Environment variables
 .env
 .env.local
