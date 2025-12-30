@@ -19,6 +19,11 @@ npm install
 
 ## Development Commands
 
+### Run Docker container
+```bash
+docker-compose up -d  # Start PostgreSQL database
+```
+
 ### Backend Server
 ```bash
 cd backend
