@@ -206,3 +206,119 @@ class TestPetCreateAPI:
         
         assert 'required' in str(response.data['name'][0]).lower()
         assert 'required' in str(response.data['species'][0]).lower()
+
+@pytest.mark.django_db
+class TestPetUpdateAPI:
+    """Test PUT /api/pets/{id}/ endpoint"""
+    
+    def test_update_pet_success(self):
+        # Arrange
+        client = APIClient()
+        pet = Pet.objects.create(
+            name="Original Name",
+            species="dog",
+            breed="Labrador"
+        )
+        
+        updated_data = {
+            'name': 'Updated Name',
+            'species': 'dog',
+            'breed': 'Golden Retriever'
+        }
+        
+        # Act
+        url = reverse('pet-detail', kwargs={'pk': pet.id})
+        response = client.put(url, updated_data, format='json')
+        
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['name'] == 'Updated Name'
+        assert response.data['breed'] == 'Golden Retriever'
+        
+        pet.refresh_from_db()
+        assert pet.name == 'Updated Name'
+        assert pet.breed == 'Golden Retriever'
+
+    def test_update_pet_not_found(self):
+        # Arrange
+        client = APIClient()
+        non_existent_id = 99999
+        
+        updated_data = {
+            'name': 'Does Not Matter',
+            'species': 'dog'
+        }
+        
+        # Act
+        url = reverse('pet-detail', kwargs={'pk': non_existent_id})
+        response = client.put(url, updated_data, format='json')
+        
+        # Assert
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        
+    def test_update_pet_invalid_data(self):
+        # Arrange
+        client = APIClient()
+        pet = Pet.objects.create(name="Buddy", species="dog")
+        
+        invalid_data = {
+            'name': '',  # Empty name - invalid
+            'species': 'dog'
+        }
+        
+        # Act
+        url = reverse('pet-detail', kwargs={'pk': pet.id})
+        response = client.put(url, invalid_data, format='json')
+        
+        # Assert
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        
+        pet.refresh_from_db()
+        assert pet.name == 'Buddy'  # Still original name
+
+    def test_update_pet_missing_fields(self):
+        # Arrange
+        client = APIClient()
+        pet = Pet.objects.create(
+            name="Buddy",
+            species="dog",
+            breed="Labrador"
+        )
+        
+        incomplete_data = {
+            'name': 'Updated Name'
+            # Missing required field 'species'
+        }
+        
+        # Act
+        url = reverse('pet-detail', kwargs={'pk': pet.id})
+        response = client.put(url, incomplete_data, format='json')
+        
+        # Assert
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_partial_update_pet_with_patch(self):
+        # Arrange
+        client = APIClient()
+        pet = Pet.objects.create(
+            name="Buddy",
+            species="dog",
+            breed="Labrador"
+        )
+        
+        partial_data = {
+            'name': 'Max'
+        }
+        
+        # Act
+        url = reverse('pet-detail', kwargs={'pk': pet.id})
+        response = client.patch(url, partial_data, format='json')
+        
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['name'] == 'Max'
+        
+        pet.refresh_from_db()
+        assert pet.name == 'Max'  # Changed
+        assert pet.species == 'dog'  # Unchanged
+        assert pet.breed == 'Labrador'  # Unchanged
