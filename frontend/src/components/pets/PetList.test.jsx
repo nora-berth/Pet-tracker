@@ -96,4 +96,54 @@ describe('PetList', () => {
       ).toBeInTheDocument();
     });
   });
+
+ it('renders Add Pet button', async () => {
+    // Arrange
+    vi.spyOn(api.petAPI, 'getAll').mockResolvedValue({
+      data: { count: 0, results: [] },
+    });
+
+    // Act
+    render(
+      <BrowserRouter>
+        <PetList />
+      </BrowserRouter>
+    );
+
+    // Assert
+    await waitFor(() => {
+      const addButton = screen.getByRole('button', { name: /add pet/i });
+      expect(addButton).toBeInTheDocument();
+    });
+  });
+
+  it('renders clickable pet cards', async () => {
+    // Arrange
+    const mockPets = {
+      count: 1,
+      results: [
+        { id: 1, name: 'Buddy', species: 'dog', breed: 'Labrador' },
+      ],
+    };
+
+    vi.spyOn(api.petAPI, 'getAll').mockResolvedValue({
+      data: mockPets,
+    });
+
+    // Act
+    render(
+      <BrowserRouter>
+        <PetList />
+      </BrowserRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Buddy')).toBeInTheDocument();
+    });
+
+    const petCard = screen.getByText('Buddy').closest('.pet-card');
+
+    // Assert
+    expect(petCard).toHaveStyle({ cursor: 'pointer' });
+  });
 });
