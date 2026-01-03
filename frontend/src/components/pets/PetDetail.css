@@ -1,0 +1,236 @@
+.pet-detail {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.back-button {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  transition: background 0.2s;
+}
+
+.back-button:hover {
+  background: #5568d3;
+}
+
+.pet-header {
+  display: flex;
+  gap: 2rem;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.pet-photo-large {
+  width: 300px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.pet-info {
+  flex: 1;
+}
+
+.pet-info h1 {
+  font-size: 2.5rem;
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+}
+
+.species {
+  font-size: 1.2rem;
+  color: #7f8c8d;
+  text-transform: capitalize;
+  margin: 0.25rem 0;
+}
+
+.breed {
+  font-size: 1.1rem;
+  color: #95a5a6;
+  margin: 0.25rem 0;
+}
+
+.birth-date {
+  font-size: 1rem;
+  color: #95a5a6;
+  margin: 0.5rem 0 1rem 0;
+}
+
+.notes {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #ecf0f1;
+}
+
+.notes h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #34495e;
+}
+
+.notes p {
+  color: #7f8c8d;
+  line-height: 1.6;
+}
+
+.records-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+.record-card {
+  background: white;
+  color: #2c3e50;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.record-card h2 {
+  font-size: 1.5rem;
+  margin: 0 0 1.5rem 0;
+  color: #2c3e50;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 0.5rem;
+}
+
+.record-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.record-card li {
+  padding: 1rem;
+  border-bottom: 1px solid #ecf0f1;
+  line-height: 1.6;
+}
+
+.record-card li:last-child {
+  border-bottom: none;
+}
+
+.record-notes {
+  display: block;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.due-date {
+  color: #e67e22;
+  font-weight: 500;
+}
+
+.cost {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.no-records {
+  color: #95a5a6;
+  font-style: italic;
+  text-align: center;
+  padding: 2rem;
+}
+
+.record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.record-header h2 {
+  margin: 0;
+}
+
+.add-record-button {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-record-button:hover {
+  background: #5568d3;
+}
+
+.record-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.record-content > div {
+  flex: 1;
+}
+
+.delete-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0.25rem 0.5rem;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.delete-button:hover {
+  transform: scale(1.2);
+}
+
+.pet-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.edit-pet-button {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.edit-pet-button:hover {
+  background: #2980b9;
+}
+
+.delete-pet-button {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.delete-pet-button:hover {
+  background: #c0392b;
+}
