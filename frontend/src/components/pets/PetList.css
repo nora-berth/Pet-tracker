@@ -41,6 +41,9 @@
   margin: 0 0 0.5rem 0;
   font-size: 1.5rem;
   color: #2c3e50;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .pet-species {
