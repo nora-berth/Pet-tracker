@@ -14,6 +14,9 @@ function App() {
       <div className="App">
         <header className="App-header">
           <h1>🐾 Pet Tracker</h1>
+          <div className="demo-notice">
+            ⚠️ Demo Version
+          </div>
         </header>
         <main>
           <Routes>
