@@ -15,7 +15,7 @@ export default defineConfig({
     setupFiles: './src/test/setup.js',
     reporters: [
       'default',
-      ['allure-vitest', {
+      ['allure-vitest/reporter', {
         resultsDir: './allure-results',
         detail: true,
         suiteTitle: true,
