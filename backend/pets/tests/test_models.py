@@ -1,4 +1,5 @@
 import pytest
+import allure
 from django.utils import timezone
 from datetime import date
 from decimal import Decimal
@@ -6,8 +7,14 @@ from pets.models import Pet, WeightRecord, Vaccination, VetVisit
 
 
 @pytest.mark.django_db
+@allure.epic('Pet Tracker')
+@allure.feature('Pet Management')
+@allure.story('CRUD Operations')
 class TestPetModel:
     
+
+    @allure.title('Create pet with required fields')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_create_pet(self):
         pet = Pet.objects.create(
             name="Doggy the dog",
@@ -17,7 +24,9 @@ class TestPetModel:
         assert pet.species == "dog"
         assert pet.id is not None
         assert pet.created_at is not None
-    
+
+    @allure.title('Create pet with all fields')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_create_pet_with_all_fields(self):
         pet = Pet.objects.create(
             name="Lord Whiskersbotom",
@@ -32,10 +41,14 @@ class TestPetModel:
         assert pet.birth_date == date(2020, 5, 15)
         assert pet.notes == "Very friendly cat"
     
+    @allure.title('Pet name string is returned correctly')
+    @allure.severity(allure.severity_level.TRIVIAL)
     def test_pet_string_representation(self):
         pet = Pet.objects.create(name="John Cena", species="dog")
         assert str(pet) == "John Cena"
     
+    @allure.title('Pets are ordered by descending creation date')
+    @allure.severity(allure.severity_level.TRIVIAL)
     def test_pet_ordering(self):
         pet1 = Pet.objects.create(name="First", species="dog")
         pet2 = Pet.objects.create(name="Second", species="cat")
@@ -46,8 +59,13 @@ class TestPetModel:
 
 
 @pytest.mark.django_db
+@allure.epic('Pet Tracker')
+@allure.feature('Health Records')
+@allure.story('Weight Tracking')
 class TestWeightRecordModel:
     
+    @allure.title('Create weight record with required fields')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_create_weight_record(self):
         pet = Pet.objects.create(name="Maxwell", species="snake")
         weight = WeightRecord.objects.create(
@@ -60,6 +78,8 @@ class TestWeightRecordModel:
         assert weight.weight == Decimal("2.5")
         assert weight.unit == "kg"
     
+    @allure.title('Create weight record with notes')
+    @allure.severity(allure.severity_level.NORMAL)
     def test_weight_record_with_notes(self):
         pet = Pet.objects.create(name="Princess Carolyn", species="cat")
         weight = WeightRecord.objects.create(
@@ -71,6 +91,8 @@ class TestWeightRecordModel:
         )
         assert weight.notes == "After diet program"
     
+    @allure.title('Pet has multiple weight records')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_weight_record_relationship(self):
         pet = Pet.objects.create(name="Bella Swan", species="hamster")
         WeightRecord.objects.create(
@@ -88,6 +110,8 @@ class TestWeightRecordModel:
         
         assert pet.weight_records.count() == 2
     
+    @allure.title('Weight record unique constraint per pet per date')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_weight_record_unique_constraint(self):
         pet = Pet.objects.create(name="Jean-Jacques", species="dog")
         WeightRecord.objects.create(
@@ -107,8 +131,13 @@ class TestWeightRecordModel:
 
 
 @pytest.mark.django_db
+@allure.epic('Pet Tracker')
+@allure.feature('Health Records')
+@allure.story('Vaccination Tracking')
 class TestVaccinationModel:
     
+    @allure.title('Create vaccination with required fields')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_create_vaccination(self):
         pet = Pet.objects.create(name="Molly", species="dog")
         vaccination = Vaccination.objects.create(
@@ -119,6 +148,8 @@ class TestVaccinationModel:
         assert vaccination.pet == pet
         assert vaccination.vaccine_name == "Rabies"
     
+    @allure.title('Create vaccination with all fields')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_vaccination_with_all_fields(self):
         pet = Pet.objects.create(name="Bob", species="cat")
         vaccination = Vaccination.objects.create(
@@ -133,6 +164,8 @@ class TestVaccinationModel:
         assert vaccination.veterinarian == "Dr. Doolittle"
         assert vaccination.notes == "Annual vaccination"
     
+    @allure.title('Pet has multiple vaccinations')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_vaccination_relationship(self):
         pet = Pet.objects.create(name="Doggy McDoggo", species="dog")
         Vaccination.objects.create(
@@ -150,8 +183,13 @@ class TestVaccinationModel:
 
 
 @pytest.mark.django_db
+@allure.epic('Pet Tracker')
+@allure.feature('Health Records')
+@allure.story('Vet Visit Tracking')
 class TestVetVisitModel:
     
+    @allure.title('Create vet visit with required fields')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_create_vet_visit(self):
         pet = Pet.objects.create(name="Pimpinella", species="dog")
         visit = VetVisit.objects.create(
@@ -162,6 +200,8 @@ class TestVetVisitModel:
         assert visit.pet == pet
         assert visit.reason == "Annual checkup"
     
+    @allure.title('Create vet visit with cost')
+    @allure.severity(allure.severity_level.NORMAL)
     def test_vet_visit_with_cost(self):
         pet = Pet.objects.create(name="Oscar Oscarson", species="cat")
         visit = VetVisit.objects.create(
@@ -172,6 +212,8 @@ class TestVetVisitModel:
         )
         assert visit.cost == Decimal("75.50")
     
+    @allure.title('Create vet visit with all fields')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_vet_visit_with_all_fields(self):
         pet = Pet.objects.create(name="Shadowcat", species="cat")
         visit = VetVisit.objects.create(
@@ -185,6 +227,8 @@ class TestVetVisitModel:
         assert visit.veterinarian == "Dr. Zoolander"
         assert visit.notes == "Diagnosed with being too cute"
     
+    @allure.title('Pet has multiple vet visits')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_vet_visit_relationship(self):
         pet = Pet.objects.create(name="Gerald of Rivia", species="cat")
         VetVisit.objects.create(
@@ -200,6 +244,8 @@ class TestVetVisitModel:
         
         assert pet.vet_visits.count() == 2
     
+    @allure.title('Deleting pet cascades to related records')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_cascade_delete(self):
         pet = Pet.objects.create(name="Anya", species="rabbit")
         WeightRecord.objects.create(
