@@ -1,4 +1,5 @@
 import pytest
+import allure
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.urls import reverse
@@ -7,9 +8,14 @@ from decimal import Decimal
 from pets.models import Pet, WeightRecord, Vaccination, VetVisit
 
 @pytest.mark.django_db
+@allure.epic('Pet Tracker')
+@allure.feature('Pet API')
+@allure.story('List Pets')
 class TestPetListAPI:
     """Test GET /api/pets/ endpoint"""
-    
+
+    @allure.title('Get empty pet list')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_get_empty_pet_list(self):
         # Arrange
         client = APIClient()
@@ -23,6 +29,8 @@ class TestPetListAPI:
         assert response.data['count'] == 0
         assert response.data['results'] == []
 
+    @allure.title('Get pet list with data')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_get_pet_list_with_data(self):
         # Arrange
         client = APIClient()
@@ -39,9 +47,14 @@ class TestPetListAPI:
         assert len(response.data['results']) == 2
 
 @pytest.mark.django_db
+@allure.epic('Pet Tracker')
+@allure.feature('Pet API')
+@allure.story('Get Pet Details')
 class TestPetDetailAPI:
     """Test GET /api/pets/{id}/ endpoint"""
-    
+
+    @allure.title('Get pet detail successfully')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_get_pet_detail_success(self):
         # Arrange
         client = APIClient()
@@ -64,18 +77,22 @@ class TestPetDetailAPI:
         assert response.data['breed'] == pet.breed
         assert response.data['birth_date'] == str(pet.birth_date)
 
+    @allure.title('Get pet detail returns 404 for non-existent pet')
+    @allure.severity(allure.severity_level.NORMAL)
     def test_get_pet_detail_not_found(self):
         # Arrange
         client = APIClient()
         non_existent_id = 99999
-        
+
         # Act
         url = reverse('pet-detail', kwargs={'pk': non_existent_id})
         response = client.get(url)
-        
+
         # Assert
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
+    @allure.title('Get pet detail includes nested records')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_get_pet_detail_includes_nested_records(self):
         # Arrange
         client = APIClient()
@@ -112,9 +129,14 @@ class TestPetDetailAPI:
         assert len(response.data['vet_visits']) == 1       
 
 @pytest.mark.django_db
+@allure.epic('Pet Tracker')
+@allure.feature('Pet API')
+@allure.story('Create Pet')
 class TestPetCreateAPI:
     """Test POST /api/pets/ endpoint"""
-    
+
+    @allure.title('Create pet successfully')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_create_pet_success(self):
         # Arrange
         client = APIClient()
@@ -136,6 +158,8 @@ class TestPetCreateAPI:
         assert 'id' in response.data
         assert Pet.objects.filter(name='Fluffy').exists()
 
+    @allure.title('Create pet with minimal data')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_create_pet_minimal_data(self):
         # Arrange
         client = APIClient()
@@ -158,6 +182,8 @@ class TestPetCreateAPI:
         pet = Pet.objects.get(name='Buddy')
         assert pet.species == 'dog'
 
+    @allure.title('Create pet fails with missing required field')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_create_pet_missing_required_field(self):
         # Arrange
         client = APIClient()
@@ -173,6 +199,8 @@ class TestPetCreateAPI:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert Pet.objects.count() == 0
 
+    @allure.title('Create pet fails with invalid data type')
+    @allure.severity(allure.severity_level.NORMAL)
     def test_create_pet_invalid_data_type(self):
         # Arrange
         client = APIClient()
@@ -189,6 +217,8 @@ class TestPetCreateAPI:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert Pet.objects.count() == 0
 
+    @allure.title('Create pet returns validation error messages')
+    @allure.severity(allure.severity_level.NORMAL)
     def test_create_pet_validation_error_messages(self):
         # Arrange
         client = APIClient()
@@ -208,9 +238,14 @@ class TestPetCreateAPI:
         assert 'required' in str(response.data['species'][0]).lower()
 
 @pytest.mark.django_db
+@allure.epic('Pet Tracker')
+@allure.feature('Pet API')
+@allure.story('Update Pet')
 class TestPetUpdateAPI:
     """Test PUT /api/pets/{id}/ endpoint"""
-    
+
+    @allure.title('Update pet successfully')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_update_pet_success(self):
         # Arrange
         client = APIClient()
@@ -239,23 +274,27 @@ class TestPetUpdateAPI:
         assert pet.name == 'Updated Name'
         assert pet.breed == 'Golden Retriever'
 
+    @allure.title('Update pet returns 404 for non-existent pet')
+    @allure.severity(allure.severity_level.NORMAL)
     def test_update_pet_not_found(self):
         # Arrange
         client = APIClient()
         non_existent_id = 99999
-        
+
         updated_data = {
             'name': 'Does Not Matter',
             'species': 'dog'
         }
-        
+
         # Act
         url = reverse('pet-detail', kwargs={'pk': non_existent_id})
         response = client.put(url, updated_data, format='json')
-        
+
         # Assert
         assert response.status_code == status.HTTP_404_NOT_FOUND
-        
+
+    @allure.title('Update pet fails with invalid data')
+    @allure.severity(allure.severity_level.NORMAL)
     def test_update_pet_invalid_data(self):
         # Arrange
         client = APIClient()
@@ -276,6 +315,8 @@ class TestPetUpdateAPI:
         pet.refresh_from_db()
         assert pet.name == 'Buddy'  # Still original name
 
+    @allure.title('Update pet fails with missing required fields')
+    @allure.severity(allure.severity_level.NORMAL)
     def test_update_pet_missing_fields(self):
         # Arrange
         client = APIClient()
@@ -284,19 +325,21 @@ class TestPetUpdateAPI:
             species="dog",
             breed="Labrador"
         )
-        
+
         incomplete_data = {
             'name': 'Updated Name'
             # Missing required field 'species'
         }
-        
+
         # Act
         url = reverse('pet-detail', kwargs={'pk': pet.id})
         response = client.put(url, incomplete_data, format='json')
-        
+
         # Assert
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
+    @allure.title('Partial update pet with PATCH')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_partial_update_pet_with_patch(self):
         # Arrange
         client = APIClient()
@@ -324,9 +367,14 @@ class TestPetUpdateAPI:
         assert pet.breed == 'Labrador'  # Unchanged
 
 @pytest.mark.django_db
+@allure.epic('Pet Tracker')
+@allure.feature('Pet API')
+@allure.story('Delete Pet')
 class TestPetDeleteAPI:
     """Test DELETE /api/pets/{id}/ endpoint"""
-    
+
+    @allure.title('Delete pet successfully')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_delete_pet_success(self):
         # Arrange
         client = APIClient()
@@ -347,18 +395,22 @@ class TestPetDeleteAPI:
         
         assert not Pet.objects.filter(id=pet_id).exists()
 
+    @allure.title('Delete pet returns 404 for non-existent pet')
+    @allure.severity(allure.severity_level.NORMAL)
     def test_delete_pet_not_found(self):
         # Arrange
         client = APIClient()
         non_existent_id = 99999
-        
+
         # Act
         url = reverse('pet-detail', kwargs={'pk': non_existent_id})
         response = client.delete(url)
-        
+
         # Assert
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
+    @allure.title('Delete pet cascades to related records')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_delete_pet_cascades_to_related_records(self):
         # Arrange
         client = APIClient()
@@ -404,6 +456,8 @@ class TestPetDeleteAPI:
         assert not Vaccination.objects.filter(id=vaccination_id).exists()
         assert not VetVisit.objects.filter(id=vet_visit_id).exists()
 
+    @allure.title('Delete pet is idempotent')
+    @allure.severity(allure.severity_level.NORMAL)
     def test_delete_pet_idempotent(self):
         # Arrange
         client = APIClient()

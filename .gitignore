@@ -45,6 +45,8 @@ Thumbs.db
 .pytest_cache/
 coverage.xml
 htmlcov/
+allure-results/
+allure-report/
 
 # Environment
 *.env
