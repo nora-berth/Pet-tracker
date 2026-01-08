@@ -3,11 +3,24 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    port: 5173,
+  },
+  build: {
+    outDir: 'dist',
+  },
   test: {
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/test/setup.js',
-    // Exclude Playwright e2e tests from Vitest
+    reporters: [
+      'default',
+      ['allure-vitest', {
+        resultsDir: './allure-results',
+        detail: true,
+        suiteTitle: true,
+      }]
+    ],
     exclude: [
       'node_modules',
       'dist',
