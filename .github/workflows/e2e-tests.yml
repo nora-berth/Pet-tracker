@@ -1,23 +1,14 @@
 name: E2E Tests
 
 on:
-  workflow_run:
-    workflows: ["Backend Tests", "Frontend Tests"]
-    types:
-      - completed
-    branches: [ main ]
-  workflow_dispatch:
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   e2e-tests:
     name: E2E Tests (Playwright)
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'pull_request' ||
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
 
     permissions:
       contents: read
