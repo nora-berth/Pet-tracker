@@ -4,6 +4,10 @@ import * as allure from 'allure-js-commons';
 import { Severity } from 'allure-js-commons';
 
 test.describe('Pet Management', () => {
+  test.beforeAll(async () => {
+    await allure.parentSuite('E2E Tests');
+    await allure.suite('Pet Management');
+  });
   test.beforeEach(async () => {
     await deleteAllPetsViaAPI();
   });
@@ -12,6 +16,8 @@ test.describe('Pet Management', () => {
     annotation: { type: 'feature', description: 'Pet Management' },
   }, async ({ page }) => {
     await allure.severity(Severity.CRITICAL);
+    await allure.parentSuite("E2E Tests");
+    await allure.suite("Pet Management");
 
     await test.step('Navigate to home page', async () => {
       await page.goto('/');
@@ -25,6 +31,8 @@ test.describe('Pet Management', () => {
     annotation: { type: 'feature', description: 'Pet Management' },
   }, async ({ page }) => {
     await allure.severity(Severity.CRITICAL);
+    await allure.parentSuite("E2E Tests");
+    await allure.suite("Pet Management");
 
     const petName = `UICreatedPet_${Date.now()}`;
 
@@ -55,6 +63,8 @@ test.describe('Pet Management', () => {
     annotation: { type: 'feature', description: 'Pet Management' },
   }, async ({ page, testPet }) => {
     await allure.severity(Severity.CRITICAL);
+    await allure.parentSuite("E2E Tests");
+    await allure.suite("Pet Management");
 
     await test.step('Navigate to home page', async () => {
       await page.goto('/');
@@ -77,6 +87,8 @@ test.describe('Pet Management', () => {
     annotation: { type: 'feature', description: 'Pet Management' },
   }, async ({ page, testPet }) => {
     await allure.severity(Severity.NORMAL);
+    await allure.parentSuite("E2E Tests");
+    await allure.suite("Pet Management");
 
     const weightSection = page.getByRole('heading', { name: 'Weight Records' }).locator('..');
 
@@ -108,6 +120,8 @@ test.describe('Pet Management', () => {
     annotation: { type: 'feature', description: 'Pet Management' },
   }, async ({ page, testPet }) => {
     await allure.severity(Severity.CRITICAL);
+    await allure.parentSuite("E2E Tests");
+    await allure.suite("Pet Management");
 
     await test.step('Navigate to pet details page', async () => {
       await page.goto(`/pets/${testPet.id}`);
@@ -135,6 +149,8 @@ test.describe('Complete User Journey (Happy Path)', () => {
     annotation: { type: 'feature', description: 'End-to-End User Journey' },
   }, async ({ page }) => {
     await allure.severity(Severity.BLOCKER);
+    await allure.parentSuite("E2E Tests");
+    await allure.suite("Pet Management");
 
     const petName = `FlowTestPet_${Date.now()}`;
 

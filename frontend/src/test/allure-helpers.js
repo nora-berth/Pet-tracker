@@ -8,6 +8,26 @@ export function initAllure() {
 }
 
 /**
+ * Mark parent suite
+ */
+export function parentSuite(name) {
+  const a = initAllure();
+  if (a) {
+    a.label('parentSuite', name);
+  }
+}
+
+/**
+ * Mark suite
+ */
+export function suite(name) {
+  const a = initAllure();
+  if (a) {
+    a.label('suite', name);
+  }
+}
+
+/**
  * Mark test feature
  */
 export function feature(name) {
