@@ -1,18 +1,5 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { existsSync } from 'fs'
-import { resolve } from 'path'
-
-// Allure Vitest reporter configuration
-const allureAvailable = existsSync(resolve(__dirname, 'node_modules/allure-vitest'))
-const reporters = ['default']
-if (allureAvailable) {
-  reporters.push(['allure-vitest/reporter', {
-    resultsDir: './allure-results',
-    detail: true,
-    suiteTitle: true,
-  }])
-}
 
 export default defineConfig({
   plugins: [react()],
@@ -25,8 +12,15 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: './src/test/setup.js',
-    reporters,
+    setupFiles: ['./src/test/setup.js', './src/test/allure-setup.js'],
+    reporters: [
+      'default',
+      ['allure-vitest/reporter', {
+        resultsDir: './allure-results',
+        detail: true,
+        suiteTitle: true,
+      }]
+    ],
     exclude: [
       'node_modules',
       'dist',
