@@ -46,6 +46,7 @@ Thumbs.db
 coverage.xml
 htmlcov/
 allure-results/
+allure-results-e2e/
 allure-report/
 
 # Environment
