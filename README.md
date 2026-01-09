@@ -46,16 +46,16 @@ The reports include:
 
 ## CI/CD Pipeline
 
-**Pipeline**: [.github/workflows/ci.yml](.github/workflows/ci.yml)
+**Pipeline**: [Workflows](https://github.com/nora-berth/Pet-tracker/actions)
 
 ### Pipeline Architecture
 
 ```mermaid
 graph LR
-    A[Backend Tests] --> D[E2E Tests]
+    A[Backend Tests] --> D[Generate Reports]
     B[Frontend Tests] --> D
-    D --> E[Generate Reports]
-    E --> F[Deploy to GitHub Pages]
+    C[E2E Tests] --> D
+    D --> E[Deploy to GitHub Pages]
 ```
 
 #### Job 1: Backend Tests
