@@ -46,7 +46,7 @@ The reports include:
 
 ## CI/CD Pipeline
 
-**Pipeline**: [Workflows](https://github.com/nora-berth/Pet-tracker/actions)
+**Pipeline**: [view CI](https://github.com/nora-berth/Pet-tracker/actions)
 
 ### Pipeline Architecture
 
@@ -108,45 +108,45 @@ graph LR
 ```
 pet-tracker/
 ├── .github/workflows/
-│   └── ci.yml                          # 5-job CI/CD pipeline
+│   └── ci.yml
 ├── backend/
-│   ├── config/                         # Django settings, URLs
+│   ├── config/
 │   ├── pets/
-│   │   ├── models.py                   # 4 data models (Pet, WeightRecord, Vaccination, VetVisit)
-│   │   ├── views.py                    # 4 ViewSets with REST API
-│   │   ├── serializers.py              # DRF serializers with nested relationships
+│   │   ├── models.py     
+│   │   ├── views.py
+│   │   ├── serializers.py   
 │   │   └── tests/
-│   │       ├── test_models.py          # 17 model tests
-│   │       └── test_api.py             # 20+ API test classes
-│   ├── pytest.ini                      # Pytest configuration + Allure settings
+│   │       ├── test_models.py 
+│   │       └── test_api.py
+│   ├── pytest.ini     
 │   ├── requirements.txt
 │   └── manage.py
 ├── frontend/
 │   ├── e2e/
-│   │   ├── pet-management.spec.js      # 6 E2E tests (257 lines)
+│   │   ├── pet-management.spec.js
 │   │   ├── fixtures/
-│   │   │   └── pet-fixtures.js         # Test data fixtures with cleanup
+│   │   │   └── pet-fixtures.js
 │   │   └── helpers/
-│   │       └── api-helpers.js          # API utilities for test setup
+│   │       └── api-helpers.js
 │   ├── src/
-│   │   ├── App.test.jsx                # Component unit tests
-│   │   ├── components/                 # React components
-│   │   ├── pages/                      # Page components
-│   │   ├── services/                   # API client (axios)
+│   │   ├── App.test.jsx
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
 │   │   └── test/
-│   │       ├── setup.js                # Vitest global setup
-│   │       └── allure-helpers.js       # Allure annotation helpers
-│   ├── playwright.config.js            # Playwright configuration
-│   ├── vite.config.js                  # Vite + Vitest + Allure reporter
+│   │       ├── setup.js
+│   │       └── allure-helpers.js
+│   ├── playwright.config.js
+│   ├── vite.config.js
 │   └── package.json
-├── docker-compose.yml                  # PostgreSQL 16 service
-├── CLAUDE.md                           # Development documentation
+├── docker-compose.yml
+├── CLAUDE.md
 ├── README.md
 └── SETUP.md
 ```
 
 
-## 🤝 Contact
+## Contact
 
 **Nora Bertholome** - QA Engineer
 
