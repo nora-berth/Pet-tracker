@@ -21,41 +21,70 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download artifacts from workflow run
+      - name: Download artifacts from all test workflows
         uses: actions/github-script@v7
         with:
           script: |
-            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: context.payload.workflow_run.id,
-            });
-
             const fs = require('fs');
-            const path = require('path');
+            const workflows = ['Backend Tests', 'Frontend Tests', 'E2E Tests'];
 
             // Create allure-results directory
             if (!fs.existsSync('allure-results')) {
               fs.mkdirSync('allure-results', { recursive: true });
             }
 
-            // Download each artifact
-            for (const artifact of artifacts.data.artifacts) {
-              if (artifact.name.startsWith('allure-results-')) {
-                console.log(`Downloading artifact: ${artifact.name}`);
-                try {
-                  const download = await github.rest.actions.downloadArtifact({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    artifact_id: artifact.id,
-                    archive_format: 'zip',
-                  });
+            // Get latest successful run for each workflow
+            for (const workflowName of workflows) {
+              console.log(`\nFetching artifacts from: ${workflowName}`);
 
-                  fs.writeFileSync(`${artifact.name}.zip`, Buffer.from(download.data));
-                  console.log(`Downloaded: ${artifact.name}.zip`);
-                } catch (error) {
-                  console.log(`Error downloading ${artifact.name}: ${error.message}`);
+              try {
+                // Get workflow runs
+                const runs = await github.rest.actions.listWorkflowRuns({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  workflow_id: `${workflowName.toLowerCase().replace(/ /g, '-')}.yml`,
+                  branch: 'main',
+                  per_page: 5,
+                });
+
+                // Find the most recent completed run
+                const latestRun = runs.data.workflow_runs.find(run => run.status === 'completed');
+
+                if (!latestRun) {
+                  console.log(`No completed runs found for ${workflowName}`);
+                  continue;
                 }
+
+                console.log(`Latest run ID: ${latestRun.id}`);
+
+                // Get artifacts from this run
+                const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  run_id: latestRun.id,
+                });
+
+                // Download allure-results artifacts
+                for (const artifact of artifacts.data.artifacts) {
+                  if (artifact.name.startsWith('allure-results-')) {
+                    console.log(`Downloading artifact: ${artifact.name}`);
+                    try {
+                      const download = await github.rest.actions.downloadArtifact({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        artifact_id: artifact.id,
+                        archive_format: 'zip',
+                      });
+
+                      fs.writeFileSync(`${artifact.name}.zip`, Buffer.from(download.data));
+                      console.log(`Downloaded: ${artifact.name}.zip`);
+                    } catch (error) {
+                      console.log(`Error downloading ${artifact.name}: ${error.message}`);
+                    }
+                  }
+                }
+              } catch (error) {
+                console.log(`Error processing ${workflowName}: ${error.message}`);
               }
             }
         continue-on-error: true
