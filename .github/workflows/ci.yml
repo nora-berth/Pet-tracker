@@ -10,7 +10,10 @@ jobs:
   backend-tests:
     name: Backend Tests (pytest)
     runs-on: ubuntu-latest
-    
+
+    permissions:
+      contents: read
+
     services:
       postgres:
         image: postgres:16
@@ -51,7 +54,7 @@ jobs:
           DB_HOST: localhost
           DB_PORT: 5432
         run: |
-          pytest --cov=pets --cov-report=xml --cov-report=term
+          pytest --cov=pets --cov-report=xml --cov-report=term --alluredir=allure-results
 
       - name: Upload coverage to artifacts
         uses: actions/upload-artifact@v4
@@ -59,9 +62,20 @@ jobs:
           name: backend-coverage
           path: backend/coverage.xml
 
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-backend
+          path: backend/allure-results/
+          retention-days: 30
+
   frontend-tests:
     name: Frontend Tests (Vitest)
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout code
@@ -80,11 +94,22 @@ jobs:
         working-directory: ./frontend
         run: npm test -- --run
 
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-frontend
+          path: frontend/allure-results/
+          retention-days: 30
+
   e2e-tests:
     name: E2E Tests (Playwright)
     runs-on: ubuntu-latest
-    
+
     needs: [backend-tests, frontend-tests]
+
+    permissions:
+      contents: read
 
     services:
       postgres:
@@ -165,3 +190,168 @@ jobs:
           name: playwright-report
           path: frontend/playwright-report/
           retention-days: 30
+
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-e2e
+          path: frontend/allure-results-e2e/
+          retention-days: 30
+
+  generate-reports:
+    name: Generate Allure Reports
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests, e2e-tests]
+    if: always()
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download backend Allure results
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-results-backend
+          path: allure-results
+        continue-on-error: true
+
+      - name: Download frontend Allure results
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-results-frontend
+          path: allure-results
+        continue-on-error: true
+
+      - name: Download E2E Allure results
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-results-e2e
+          path: allure-results
+        continue-on-error: true
+
+      - name: Set up Java (for Allure)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Allure CLI
+        run: |
+          wget https://github.com/allure-framework/allure2/releases/download/2.25.0/allure-2.25.0.tgz
+          tar -zxvf allure-2.25.0.tgz
+          sudo mv allure-2.25.0 /opt/allure
+          sudo ln -s /opt/allure/bin/allure /usr/bin/allure
+
+      - name: Generate combined Allure report
+        run: |
+          if [ -d "allure-results" ]; then
+            allure generate allure-results --clean -o allure-report
+          else
+            mkdir -p allure-report
+            echo "<h1>No test results found</h1>" > allure-report/index.html
+          fi
+
+      - name: Upload Allure report
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report/
+          retention-days: 30
+
+  deploy-pages:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: generate-reports
+    if: github.ref == 'refs/heads/main'
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Allure report
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-report
+          path: ./allure-report
+
+      - name: Create index page
+        run: |
+          cat > ./allure-report/index-redirect.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Pet Tracker - Test Reports</title>
+            <meta http-equiv="refresh" content="0; url=./report.html">
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+              }
+              .container {
+                text-align: center;
+              }
+              h1 { font-size: 3em; margin-bottom: 0.5em; }
+              p { font-size: 1.2em; }
+              .loading {
+                border: 5px solid #f3f3f3;
+                border-top: 5px solid #667eea;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                animation: spin 1s linear infinite;
+                margin: 20px auto;
+              }
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>🐾 Pet Tracker</h1>
+              <h2>Test Reports</h2>
+              <div class="loading"></div>
+              <p>Loading Allure report...</p>
+              <p><small>If not redirected, <a href="./report.html" style="color: white;">click here</a></small></p>
+            </div>
+          </body>
+          </html>
+          EOF
+          mv ./allure-report/index.html ./allure-report/report.html
+          mv ./allure-report/index-redirect.html ./allure-report/index.html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './allure-report'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
