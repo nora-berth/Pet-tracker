@@ -21,28 +21,85 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download backend Allure results
-        uses: actions/download-artifact@v4
+      - name: Download artifacts from all test workflows
+        uses: actions/github-script@v7
         with:
-          name: allure-results-backend
-          path: allure-results
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            // Create allure-results directory
+            if (!fs.existsSync('allure-results')) {
+              fs.mkdirSync('allure-results', { recursive: true });
+            }
+
+            // Get recent workflow runs for Backend Tests, Frontend Tests, and E2E Tests
+            const workflowNames = ['Backend Tests', 'Frontend Tests', 'E2E Tests'];
+            const branch = 'main';
+
+            for (const workflowName of workflowNames) {
+              console.log(`\nFetching artifacts from: ${workflowName}`);
+
+              try {
+                // Get recent successful runs for this workflow
+                const runs = await github.rest.actions.listWorkflowRuns({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  workflow_id: `${workflowName.toLowerCase().replace(/ /g, '-')}.yml`,
+                  branch: branch,
+                  status: 'completed',
+                  per_page: 1
+                });
+
+                if (runs.data.workflow_runs.length === 0) {
+                  console.log(`No completed runs found for ${workflowName}`);
+                  continue;
+                }
+
+                const latestRun = runs.data.workflow_runs[0];
+                console.log(`Latest run ID: ${latestRun.id}`);
+
+                // Get artifacts from this run
+                const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  run_id: latestRun.id,
+                });
+
+                // Download allure-results artifacts
+                for (const artifact of artifacts.data.artifacts) {
+                  if (artifact.name.startsWith('allure-results-')) {
+                    console.log(`Downloading artifact: ${artifact.name}`);
+                    try {
+                      const download = await github.rest.actions.downloadArtifact({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        artifact_id: artifact.id,
+                        archive_format: 'zip',
+                      });
+
+                      fs.writeFileSync(`${artifact.name}.zip`, Buffer.from(download.data));
+                      console.log(`Downloaded: ${artifact.name}.zip`);
+                    } catch (error) {
+                      console.log(`Error downloading ${artifact.name}: ${error.message}`);
+                    }
+                  }
+                }
+              } catch (error) {
+                console.log(`Error processing ${workflowName}: ${error.message}`);
+              }
+            }
         continue-on-error: true
 
-      - name: Download frontend Allure results
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-results-frontend
-          path: allure-results
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true
-
-      - name: Download E2E Allure results
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-results-e2e
-          path: allure-results
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract downloaded artifacts
+        run: |
+          if ls allure-results-*.zip 1> /dev/null 2>&1; then
+            for file in allure-results-*.zip; do
+              echo "Extracting $file"
+              unzip -o "$file" -d allure-results/
+            done
+          else
+            echo "No artifact files found"
+          fi
         continue-on-error: true
 
       - name: Set up Java (for Allure)
