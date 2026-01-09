@@ -8,7 +8,7 @@ export const test = base.extend({
   testPet: async ({}, use) => {
     // Setup
     const pet = await createPetViaAPI({
-      name: `TestPet_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, // Unique name
+      name: `TestPet_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
       species: 'dog',
       breed: 'Test Breed',
     });
