@@ -7,7 +7,10 @@ test.describe('Pet Management', () => {
   });
 
   test('can view the home page', {
-    annotation: { type: 'feature', description: 'Pet Management' },
+    annotation: [
+      { type: 'feature', description: 'Pet Management' },
+      { type: 'severity', description: 'critical' },
+    ],
   }, async ({ page }) => {
     await test.step('Navigate to home page', async () => {
       await page.goto('/');
@@ -18,7 +21,10 @@ test.describe('Pet Management', () => {
   });
 
   test('can add a new pet via UI', {
-    annotation: { type: 'feature', description: 'Pet Management' },
+    annotation: [
+      { type: 'feature', description: 'Pet Management' },
+      { type: 'severity', description: 'critical' },
+    ],
   }, async ({ page }) => {
     const petName = `UICreatedPet_${Date.now()}`;
 
@@ -46,7 +52,10 @@ test.describe('Pet Management', () => {
   });
 
   test('can view pet details', {
-    annotation: { type: 'feature', description: 'Pet Management' },
+    annotation: [
+      { type: 'feature', description: 'Pet Management' },
+      { type: 'severity', description: 'critical' },
+    ],
   }, async ({ page, testPet }) => {
     await test.step('Navigate to home page', async () => {
       await page.goto('/');
@@ -66,7 +75,10 @@ test.describe('Pet Management', () => {
   });
 
   test('can add a weight record to pet', {
-    annotation: { type: 'feature', description: 'Pet Management' },
+    annotation: [
+      { type: 'feature', description: 'Pet Management' },
+      { type: 'severity', description: 'normal' },
+    ],
   }, async ({ page, testPet }) => {
     const weightSection = page.getByRole('heading', { name: 'Weight Records' }).locator('..');
 
@@ -95,7 +107,10 @@ test.describe('Pet Management', () => {
   });
 
   test('can delete a pet', {
-    annotation: { type: 'feature', description: 'Pet Management' },
+    annotation: [
+      { type: 'feature', description: 'Pet Management' },
+      { type: 'severity', description: 'critical' },
+    ],
   }, async ({ page, testPet }) => {
     await test.step('Navigate to pet details page', async () => {
       await page.goto(`/pets/${testPet.id}`);
@@ -120,7 +135,10 @@ test.describe('Complete User Journey (Happy Path)', () => {
   });
 
   test('complete pet management flow', {
-    annotation: { type: 'feature', description: 'End-to-End User Journey' },
+    annotation: [
+      { type: 'feature', description: 'End-to-End User Journey' },
+      { type: 'severity', description: 'blocker' },
+    ],
   }, async ({ page }) => {
     const petName = `FlowTestPet_${Date.now()}`;
 
