@@ -7,7 +7,10 @@ from datetime import date
 from decimal import Decimal
 from pets.models import Pet, WeightRecord, Vaccination, VetVisit
 
-@pytest.mark.django_db
+pytestmark = [pytest.mark.django_db]
+
+@allure.parent_suite('Backend Tests')
+@allure.suite('API Tests')
 @allure.epic('Pet Tracker')
 @allure.feature('Pet API')
 @allure.story('List Pets')
@@ -46,7 +49,8 @@ class TestPetListAPI:
         assert response.data['count'] == 2
         assert len(response.data['results']) == 2
 
-@pytest.mark.django_db
+@allure.parent_suite("Backend Tests")
+@allure.suite("API Tests")
 @allure.epic('Pet Tracker')
 @allure.feature('Pet API')
 @allure.story('Get Pet Details')
@@ -128,7 +132,8 @@ class TestPetDetailAPI:
         assert len(response.data['vaccinations']) == 1
         assert len(response.data['vet_visits']) == 1       
 
-@pytest.mark.django_db
+@allure.parent_suite("Backend Tests")
+@allure.suite("API Tests")
 @allure.epic('Pet Tracker')
 @allure.feature('Pet API')
 @allure.story('Create Pet')
@@ -178,7 +183,6 @@ class TestPetCreateAPI:
         assert response.data['species'] == 'dog'
         assert response.data['breed'] == '' or response.data['breed'] is None
         
-        # Verify in database
         pet = Pet.objects.get(name='Buddy')
         assert pet.species == 'dog'
 
@@ -237,7 +241,8 @@ class TestPetCreateAPI:
         assert 'required' in str(response.data['name'][0]).lower()
         assert 'required' in str(response.data['species'][0]).lower()
 
-@pytest.mark.django_db
+@allure.parent_suite("Backend Tests")
+@allure.suite("API Tests")
 @allure.epic('Pet Tracker')
 @allure.feature('Pet API')
 @allure.story('Update Pet')
@@ -366,7 +371,8 @@ class TestPetUpdateAPI:
         assert pet.species == 'dog'  # Unchanged
         assert pet.breed == 'Labrador'  # Unchanged
 
-@pytest.mark.django_db
+@allure.parent_suite("Backend Tests")
+@allure.suite("API Tests")
 @allure.epic('Pet Tracker')
 @allure.feature('Pet API')
 @allure.story('Delete Pet')
@@ -416,7 +422,6 @@ class TestPetDeleteAPI:
         client = APIClient()
         pet = Pet.objects.create(name="TestPet", species="dog")
         
-        # Create related records
         weight = WeightRecord.objects.create(
             pet=pet,
             date=date.today(),

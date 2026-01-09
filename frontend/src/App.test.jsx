@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 import * as api from './services/api';
-import { feature, story, severity, step, Severity } from './test/allure-helpers';
+import { parentSuite, suite, feature, story, severity, step, Severity } from './test/allure-helpers';
 
 describe('App', () => {
   beforeEach(() => {
@@ -12,6 +12,8 @@ describe('App', () => {
   });
 
   it('renders the app', () => {
+    parentSuite('Frontend Tests');
+    suite('Unit Tests');
     feature('App Component');
     story('Rendering');
     severity(Severity.CRITICAL);
