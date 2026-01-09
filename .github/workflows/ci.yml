@@ -269,9 +269,9 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     permissions:
-      contents: read
       pages: write
       id-token: write
+      contents: read
 
     environment:
       name: github-pages
@@ -282,26 +282,23 @@ jobs:
       cancel-in-progress: false
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download Allure report
+      - name: Download Allure report artifact
         uses: actions/download-artifact@v4
         with:
           name: allure-report
           path: ./allure-report
 
-      - name: Create index page
+      - name: Create landing page
         run: |
-          cat > ./allure-report/index-redirect.html << 'EOF'
+          cat > ./allure-report/landing.html << 'EOF'
           <!DOCTYPE html>
           <html>
           <head>
             <title>Pet Tracker - Test Reports</title>
-            <meta http-equiv="refresh" content="0; url=./report.html">
+            <meta http-equiv="refresh" content="2; url=./index.html">
             <style>
               body {
-                font-family: Arial, sans-serif;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
                 display: flex;
                 justify-content: center;
                 align-items: center;
@@ -312,45 +309,71 @@ jobs:
               }
               .container {
                 text-align: center;
+                max-width: 600px;
+                padding: 2rem;
               }
-              h1 { font-size: 3em; margin-bottom: 0.5em; }
-              p { font-size: 1.2em; }
+              h1 { 
+                font-size: 3.5em; 
+                margin: 0.2em 0;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+              }
+              h2 { 
+                font-size: 2em; 
+                margin: 0.5em 0;
+                font-weight: 300;
+              }
+              .stats {
+                background: rgba(255,255,255,0.1);
+                border-radius: 12px;
+                padding: 1.5rem;
+                margin: 2rem 0;
+                backdrop-filter: blur(10px);
+              }
+              .stat-item {
+                display: inline-block;
+                margin: 0.5rem 1rem;
+                font-size: 1.2em;
+              }
               .loading {
-                border: 5px solid #f3f3f3;
-                border-top: 5px solid #667eea;
+                border: 5px solid rgba(255,255,255,0.3);
+                border-top: 5px solid white;
                 border-radius: 50%;
-                width: 50px;
-                height: 50px;
+                width: 60px;
+                height: 60px;
                 animation: spin 1s linear infinite;
-                margin: 20px auto;
+                margin: 2rem auto;
               }
               @keyframes spin {
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
               }
+              a { color: white; text-decoration: underline; }
             </style>
           </head>
           <body>
             <div class="container">
               <h1>🐾 Pet Tracker</h1>
-              <h2>Test Reports</h2>
+              <h2>QA Test Reports</h2>
+              <div class="stats">
+                <div class="stat-item">📊 Comprehensive Testing</div>
+                <div class="stat-item">✅ Quality Assurance</div>
+                <div class="stat-item">🎯 Coverage</div>
+              </div>
               <div class="loading"></div>
-              <p>Loading Allure report...</p>
-              <p><small>If not redirected, <a href="./report.html" style="color: white;">click here</a></small></p>
+              <p>Loading comprehensive test reports...</p>
+              <p><small>If not redirected, <a href="./index.html">click here</a></small></p>
             </div>
           </body>
           </html>
           EOF
-          mv ./allure-report/index.html ./allure-report/report.html
-          mv ./allure-report/index-redirect.html ./allure-report/index.html
 
-      - name: Setup Pages
+      - name: Setup GitHub Pages
         uses: actions/configure-pages@v4
 
-      - name: Upload artifact
+      - name: Upload artifact for Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './allure-report'
+          path: ./allure-report
 
       - name: Deploy to GitHub Pages
         id: deployment
