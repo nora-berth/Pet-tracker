@@ -1,7 +1,5 @@
 # Pet Tracker - My app + QA Project
 
-[![CI Pipeline])](https://github.com/nora-berth/pet-tracker/actions)
-[![Test Reports]](https://nora-berth.github.io/Pet-tracker/)
 
 A pet health management application including multi-layer test automation, CI/CD pipeline, and test reporting.
 Still a work in progress. Check out the [SETUP.md](SETUP.md) guide for detailed installation and configuration instructions.
