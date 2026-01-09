@@ -9,7 +9,7 @@ Still a work in progress. Check out the [SETUP.md](SETUP.md) guide for detailed 
 
 ## Test Reports
 
-**[Test Reports with Allure](https://nora-berth.github.io/pet-tracker/)**
+**[Test Reports with Allure](https://nora-berth.github.io/Pet-tracker/)**
 
 The reports include:
 - Test execution history and trends
