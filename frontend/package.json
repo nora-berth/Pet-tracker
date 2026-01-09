@@ -29,7 +29,6 @@
     "@vitejs/plugin-react": "^5.0.4",
     "allure-commandline": "^2.36.0",
     "allure-js-commons": "^3.4.4",
-    "allure-vitest": "^3.4.4",
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.22",
