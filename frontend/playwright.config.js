@@ -9,9 +9,7 @@ export default defineConfig({
   reporter: [
     ['html'],
     ['allure-playwright', {
-      detail: true,
-      outputFolder: 'allure-results-e2e',
-      suiteTitle: false,
+      resultsDir: 'allure-results-e2e',
     }]
   ],
   use: {
