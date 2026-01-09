@@ -1,5 +1,7 @@
 import { test, expect } from './fixtures/pet-fixtures.js';
 import { createPetViaAPI, deleteAllPetsViaAPI } from './helpers/api-helpers.js';
+import * as allure from 'allure-js-commons';
+import { Severity } from 'allure-js-commons';
 
 test.describe('Pet Management', () => {
   test.beforeEach(async () => {
@@ -7,11 +9,10 @@ test.describe('Pet Management', () => {
   });
 
   test('can view the home page', {
-    annotation: [
-      { type: 'feature', description: 'Pet Management' },
-      { type: 'severity', description: 'critical' },
-    ],
+    annotation: { type: 'feature', description: 'Pet Management' },
   }, async ({ page }) => {
+    await allure.severity(Severity.CRITICAL);
+
     await test.step('Navigate to home page', async () => {
       await page.goto('/');
     });
@@ -21,11 +22,10 @@ test.describe('Pet Management', () => {
   });
 
   test('can add a new pet via UI', {
-    annotation: [
-      { type: 'feature', description: 'Pet Management' },
-      { type: 'severity', description: 'critical' },
-    ],
+    annotation: { type: 'feature', description: 'Pet Management' },
   }, async ({ page }) => {
+    await allure.severity(Severity.CRITICAL);
+
     const petName = `UICreatedPet_${Date.now()}`;
 
     await test.step('Navigate to home page', async () => {
@@ -52,11 +52,10 @@ test.describe('Pet Management', () => {
   });
 
   test('can view pet details', {
-    annotation: [
-      { type: 'feature', description: 'Pet Management' },
-      { type: 'severity', description: 'critical' },
-    ],
+    annotation: { type: 'feature', description: 'Pet Management' },
   }, async ({ page, testPet }) => {
+    await allure.severity(Severity.CRITICAL);
+
     await test.step('Navigate to home page', async () => {
       await page.goto('/');
     });
@@ -75,11 +74,10 @@ test.describe('Pet Management', () => {
   });
 
   test('can add a weight record to pet', {
-    annotation: [
-      { type: 'feature', description: 'Pet Management' },
-      { type: 'severity', description: 'normal' },
-    ],
+    annotation: { type: 'feature', description: 'Pet Management' },
   }, async ({ page, testPet }) => {
+    await allure.severity(Severity.NORMAL);
+
     const weightSection = page.getByRole('heading', { name: 'Weight Records' }).locator('..');
 
     await test.step('Navigate to pet details page', async () => {
@@ -107,11 +105,10 @@ test.describe('Pet Management', () => {
   });
 
   test('can delete a pet', {
-    annotation: [
-      { type: 'feature', description: 'Pet Management' },
-      { type: 'severity', description: 'critical' },
-    ],
+    annotation: { type: 'feature', description: 'Pet Management' },
   }, async ({ page, testPet }) => {
+    await allure.severity(Severity.CRITICAL);
+
     await test.step('Navigate to pet details page', async () => {
       await page.goto(`/pets/${testPet.id}`);
       await expect(page.getByRole('heading', { name: testPet.name, level: 1 })).toBeVisible();
@@ -135,11 +132,10 @@ test.describe('Complete User Journey (Happy Path)', () => {
   });
 
   test('complete pet management flow', {
-    annotation: [
-      { type: 'feature', description: 'End-to-End User Journey' },
-      { type: 'severity', description: 'blocker' },
-    ],
+    annotation: { type: 'feature', description: 'End-to-End User Journey' },
   }, async ({ page }) => {
+    await allure.severity(Severity.BLOCKER);
+
     const petName = `FlowTestPet_${Date.now()}`;
 
     await test.step('Add a new pet', async () => {
