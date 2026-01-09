@@ -78,7 +78,12 @@ jobs:
         working-directory: ./frontend
         run: |
           npm ci
-          npm list allure-vitest
+          echo "Checking for allure packages in node_modules:"
+          ls node_modules | grep allure || echo "No allure packages found in node_modules"
+          echo "Checking package.json devDependencies:"
+          cat package.json | grep -A 2 allure
+          echo "Checking installed packages:"
+          npm ls --depth=0 | grep allure || echo "npm ls shows no allure packages"
 
       - name: Run frontend unit tests
         working-directory: ./frontend
