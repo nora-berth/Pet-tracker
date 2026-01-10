@@ -101,6 +101,15 @@ jobs:
           fi
         continue-on-error: true
 
+      - name: Debug - Check allure-results contents
+        run: |
+          echo "=== Allure Results Directory Contents ==="
+          ls -la allure-results/ | head -20
+          echo "=== Total files count ==="
+          find allure-results/ -type f | wc -l
+          echo "=== Result JSON files count ==="
+          find allure-results/ -name "*-result.json" | wc -l
+
       - name: Set up Java (for Allure)
         uses: actions/setup-java@v4
         with:
