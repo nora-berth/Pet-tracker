@@ -5,15 +5,12 @@ A pet health management application including multi-layer test automation, CI/CD
 Still a work in progress. Check out the [SETUP.md](SETUP.md) guide for detailed installation and configuration instructions.
 
 
-**[Test Reports with Allure](https://nora-berth.github.io/Pet-tracker/)**
-
-
 ## Test Architecture
 
 ### Backend Tests
 **Location**: `backend/pets/tests/`
 
-- **Framework**: Pytest with Django integration
+- **Framework**: Pytest
 - **Test Files**:
   - [test_models.py](backend/pets/tests/test_models.py) - Model layer validation (Pet, WeightRecord, Vaccination, VetVisit)
   - [test_api.py](backend/pets/tests/test_api.py) - REST API CRUD operations, error handling, validation
@@ -23,7 +20,9 @@ Still a work in progress. Check out the [SETUP.md](SETUP.md) guide for detailed 
 
 - **Framework**: Vitest + React Testing Library
 - **Test Files**:
-  - [App.test.jsx](frontend/src/App.test.jsx) - Component tests
+  - [App.test.jsx](frontend/src/App.test.jsx) - App component rendering
+  - [PetList.test.jsx](frontend/src/components/pets/PetList.test.jsx) - Pet list display and interactions
+  - [AddPet.test.jsx](frontend/src/components/pets/AddPet.test.jsx) - Pet creation form validation
 
 ### End-to-End Tests
 **Location**: `frontend/e2e/`
@@ -37,45 +36,26 @@ Still a work in progress. Check out the [SETUP.md](SETUP.md) guide for detailed 
 
 ## CI/CD Pipeline
 
-**Pipeline**: [view CI](https://github.com/nora-berth/Pet-tracker/actions)
+**Pipeline**: [View CI Workflows](https://github.com/nora-berth/Pet-tracker/actions)
+**Test Reports**: [View Allure Reports Dashboard](https://nora-berth.github.io/Pet-tracker/)
 
 ### Pipeline Architecture
 
 ```mermaid
-graph LR
-    A[Backend Tests] --> D[Generate Reports]
-    B[Frontend Tests] --> D
-    C[E2E Tests] --> D
-    D --> E[Deploy to GitHub Pages]
+graph TB
+    A[Frontend Tests Workflow] -->|Generate Report| A1[Upload Frontend Report Artifact]
+    B[Backend Tests Workflow] -->|Generate Report| B1[Upload Backend Report Artifact]
+    C[E2E Tests Workflow] -->|Generate Report| C1[Upload E2E Report Artifact]
+
+    A1 -->|On main branch merge| D[Deploy Reports to GitHub Pages]
+    B1 -->|On main branch merge| D
+    C1 -->|On main branch merge| D
+
+    D --> E[Public Dashboard]
+    E --> E1[Frontend Report]
+    E --> E2[Backend Report]
+    E --> E3[E2E Report]
 ```
-
-#### Job 1: Backend Tests
-- Python 3.11 + pytest
-- PostgreSQL 16 service with health checks
-- Coverage reporting (XML + terminal)
-- Allure results artifact
-
-#### Job 2: Frontend Unit Tests
-- Node 20 + Vitest
-- Unit test execution
-- Allure results artifact
-
-#### Job 3: E2E Tests
-- Full environment setup (Python + Node + PostgreSQL)
-- Database migrations
-- Django development server
-- Playwright browser installation
-- HTML report + Allure results
-
-#### Job 4: Generate Reports
-- Runs on success/failure
-- Allure CLI 2.25.0 aggregates all test results
-- Combined HTML report generation
-
-#### Job 5: Deploy to GitHub Pages
-- Deployment for main branch reports
-- GitHub Pages integration
-- Public test report hosting
 
 
 ## Tech Stack
