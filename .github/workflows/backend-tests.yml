@@ -93,7 +93,7 @@ jobs:
           retention-days: 30
 
       - name: Add report link to summary
-        if: always()
+        if: always() && github.ref == 'refs/heads/main'
         run: |
           REPORT_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/backend/${{ github.run_id }}/index.html"
           echo "## 📊 Test Report" >> $GITHUB_STEP_SUMMARY
@@ -101,23 +101,3 @@ jobs:
           echo "View the full Allure report: [$REPORT_URL]($REPORT_URL)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "> Note: Report will be available after the deployment workflow completes (~2-3 minutes)" >> $GITHUB_STEP_SUMMARY
-
-      - name: Comment PR with report link
-        if: always() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        continue-on-error: true
-        with:
-          script: |
-            const reportUrl = `https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/backend/${{ github.run_id }}/index.html`;
-            const comment = `## 📊 Backend Test Report
-
-            View the full Allure report: [${reportUrl}](${reportUrl})
-
-            > Note: Report will be available after the deployment workflow completes (~2-3 minutes)`;
-
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: comment
-            });
