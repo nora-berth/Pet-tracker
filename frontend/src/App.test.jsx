@@ -4,12 +4,12 @@ import App from './App';
 import * as api from './services/api';
 import { parentSuite, feature, story, severity, step, Severity } from './test/allure-helpers';
 
-describe('App', () => {
+describe('App Component', () => {
+  parentSuite('Frontend Tests');
   beforeEach(() => {
     if (api.petAPI && api.petAPI.getAll) {
       vi.spyOn(api.petAPI, 'getAll').mockResolvedValue({ data: [] });
     }
-    parentSuite('Frontend Tests');
   });
 
   it('renders the app', () => {
