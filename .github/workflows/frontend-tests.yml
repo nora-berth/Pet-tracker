@@ -51,7 +51,7 @@ jobs:
         with:
           name: allure-report-frontend-${{ github.run_id }}
           path: allure-report-frontend-${{ github.run_id }}/
-          retention-days: 30
+          retention-days: 7
 
       - name: Upload Allure results
         if: always()
@@ -59,7 +59,7 @@ jobs:
         with:
           name: allure-results-frontend
           path: frontend/allure-results/
-          retention-days: 30
+          retention-days: 7
 
       - name: Add report link to summary
         if: always() && github.ref == 'refs/heads/main'
