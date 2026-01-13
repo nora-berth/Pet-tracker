@@ -60,7 +60,6 @@ class TestPetModel:
 
 
 @pytest.mark.django_db
-@allure.parent_suite('Backend Tests')
 @allure.suite('Model Tests')
 @allure.epic('Pet Tracker')
 @allure.feature('Health Records')
@@ -134,7 +133,6 @@ class TestWeightRecordModel:
 
 
 @pytest.mark.django_db
-@allure.parent_suite('Backend Tests')
 @allure.suite('Model Tests')
 @allure.epic('Pet Tracker')
 @allure.feature('Health Records')
@@ -188,7 +186,6 @@ class TestVaccinationModel:
 
 
 @pytest.mark.django_db
-@allure.parent_suite('Backend Tests')
 @allure.suite('Model Tests')
 @allure.epic('Pet Tracker')
 @allure.feature('Health Records')
