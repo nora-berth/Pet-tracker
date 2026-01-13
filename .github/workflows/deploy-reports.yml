@@ -125,8 +125,11 @@ jobs:
         run: |
           if [ -d "allure-history" ]; then
             echo "Copying previous history to allure-results"
+            echo "Contents of allure-history:"
+            ls -la allure-history/
             mkdir -p allure-results/history
             cp -r allure-history/* allure-results/history/
+            echo "History copied successfully"
           else
             echo "No previous history found"
           fi
@@ -144,11 +147,21 @@ jobs:
         run: |
           if [ -d "allure-report/history" ]; then
             echo "Saving history for next run"
+            echo "Contents of allure-report/history:"
+            ls -la allure-report/history/
             mkdir -p allure-history-backup
             cp -r allure-report/history/* allure-history-backup/
+            echo "Contents of allure-history-backup:"
+            ls -la allure-history-backup/
+            echo "History saved successfully"
+          else
+            echo "No history directory found in allure-report"
+            mkdir -p allure-history-backup
+            echo "Created empty history backup directory"
           fi
 
       - name: Upload Allure history
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: allure-history
