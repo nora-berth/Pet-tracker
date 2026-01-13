@@ -9,7 +9,6 @@ from pets.models import Pet, WeightRecord, Vaccination, VetVisit
 
 pytestmark = [pytest.mark.django_db]
 
-@allure.parent_suite('Backend Tests')
 @allure.suite('API Tests')
 @allure.epic('Pet Tracker')
 @allure.feature('Pet API')

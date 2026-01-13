@@ -5,7 +5,6 @@ import { Severity } from 'allure-js-commons';
 
 test.describe('Pet Management', () => {
   test.beforeEach(async () => {
-    await allure.parentSuite('E2E Tests');
     await allure.epic('Pet Tracker');
     await deleteAllPetsViaAPI();
   });

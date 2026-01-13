@@ -6,8 +6,6 @@ import { parentSuite, feature, story, severity, step, Severity } from './test/al
 
 describe('App Component', () => {
   beforeEach(() => {
-    parentSuite('Frontend Tests');
-    
     if (api.petAPI && api.petAPI.getAll) {
       vi.spyOn(api.petAPI, 'getAll').mockResolvedValue({ data: [] });
     }

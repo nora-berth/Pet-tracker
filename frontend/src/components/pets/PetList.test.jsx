@@ -7,7 +7,6 @@ import { parentSuite, feature, story, severity, step, Severity } from '../../tes
 
 describe('PetList Component', () => {
   beforeEach(() => {
-    parentSuite('Frontend Tests');
     vi.clearAllMocks();
   });
 
