@@ -1,0 +1,357 @@
+name: Deploy Allure Reports to GitHub Pages
+
+on:
+  workflow_run:
+    workflows: ["Frontend Tests", "Backend Tests", "E2E Tests"]
+    types:
+      - completed
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy-reports:
+    name: Deploy Reports to GitHub Pages
+    runs-on: ubuntu-latest
+    if: always()
+
+    permissions:
+      pages: write
+      id-token: write
+      contents: read
+      actions: read
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all report artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Create public directory structure
+            fs.mkdirSync('public/reports', { recursive: true });
+
+            // Get recent workflow runs for all test workflows
+            const workflows = ['frontend-tests.yml', 'backend-tests.yml', 'e2e-tests.yml'];
+            const suiteMap = {
+              'frontend-tests.yml': 'frontend',
+              'backend-tests.yml': 'backend',
+              'e2e-tests.yml': 'e2e'
+            };
+
+            for (const workflowFile of workflows) {
+              const suite = suiteMap[workflowFile];
+              console.log(`\nFetching artifacts for ${suite}...`);
+
+              try {
+                // Get recent runs
+                const runs = await github.rest.actions.listWorkflowRuns({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  workflow_id: workflowFile,
+                  branch: 'main',
+                  per_page: 10,
+                });
+
+                // Download report artifacts from recent runs
+                for (const run of runs.data.workflow_runs.slice(0, 5)) {
+                  console.log(`Checking run ${run.id}...`);
+
+                  const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    run_id: run.id,
+                  });
+
+                  for (const artifact of artifacts.data.artifacts) {
+                    if (artifact.name.startsWith(`allure-report-${suite}-`)) {
+                      console.log(`Downloading artifact: ${artifact.name}`);
+
+                      try {
+                        const download = await github.rest.actions.downloadArtifact({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          artifact_id: artifact.id,
+                          archive_format: 'zip',
+                        });
+
+                        const zipPath = `${artifact.name}.zip`;
+                        fs.writeFileSync(zipPath, Buffer.from(download.data));
+                        console.log(`Downloaded: ${zipPath}`);
+                      } catch (error) {
+                        console.log(`Error downloading ${artifact.name}: ${error.message}`);
+                      }
+                    }
+                  }
+                }
+              } catch (error) {
+                console.log(`Error processing ${suite}: ${error.message}`);
+              }
+            }
+
+      - name: Extract and organize reports
+        run: |
+          mkdir -p public/reports/{frontend,backend,e2e}
+
+          # Extract all downloaded report archives
+          for zipfile in allure-report-*.zip; do
+            if [ -f "$zipfile" ]; then
+              echo "Processing $zipfile"
+
+              # Extract suite and build-id from filename
+              # Format: allure-report-{suite}-{build-id}.zip
+              filename=$(basename "$zipfile" .zip)
+              suite=$(echo "$filename" | cut -d'-' -f3)
+              build_id=$(echo "$filename" | cut -d'-' -f4)
+
+              echo "Suite: $suite, Build ID: $build_id"
+
+              # Create target directory
+              target_dir="public/reports/$suite/$build_id"
+              mkdir -p "$target_dir"
+
+              # Extract
+              unzip -q "$zipfile" -d "$target_dir"
+
+              echo "Extracted to $target_dir"
+            fi
+          done
+
+          # List what we have
+          echo "Report structure:"
+          find public/reports -type d -maxdepth 3
+
+      - name: Create index page
+        run: |
+          cat > public/index.html <<'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Pet Tracker - Test Reports</title>
+            <style>
+              * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+              }
+
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding: 2rem;
+              }
+
+              .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                overflow: hidden;
+              }
+
+              header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 3rem 2rem;
+                text-align: center;
+              }
+
+              h1 {
+                font-size: 2.5rem;
+                margin-bottom: 0.5rem;
+              }
+
+              .subtitle {
+                font-size: 1.1rem;
+                opacity: 0.9;
+              }
+
+              main {
+                padding: 2rem;
+              }
+
+              .intro {
+                text-align: center;
+                margin-bottom: 3rem;
+                padding: 1.5rem;
+                background: #f8f9fa;
+                border-radius: 8px;
+              }
+
+              .test-suites {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2rem;
+                margin-bottom: 3rem;
+              }
+
+              .suite-card {
+                background: white;
+                border: 2px solid #e9ecef;
+                border-radius: 8px;
+                padding: 2rem;
+                transition: transform 0.2s, box-shadow 0.2s;
+              }
+
+              .suite-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+                border-color: #667eea;
+              }
+
+              .suite-card h2 {
+                color: #667eea;
+                margin-bottom: 1rem;
+                font-size: 1.5rem;
+              }
+
+              .suite-card p {
+                color: #666;
+                margin-bottom: 1.5rem;
+              }
+
+              .suite-card a {
+                display: inline-block;
+                padding: 0.75rem 1.5rem;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                text-decoration: none;
+                border-radius: 6px;
+                transition: opacity 0.2s;
+              }
+
+              .suite-card a:hover {
+                opacity: 0.9;
+              }
+
+              .icon {
+                font-size: 3rem;
+                margin-bottom: 1rem;
+              }
+
+              footer {
+                text-align: center;
+                padding: 2rem;
+                color: #666;
+                border-top: 1px solid #e9ecef;
+              }
+
+              .badge {
+                display: inline-block;
+                padding: 0.25rem 0.75rem;
+                background: #28a745;
+                color: white;
+                border-radius: 12px;
+                font-size: 0.875rem;
+                margin-left: 0.5rem;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <header>
+                <h1>🐾 Pet Tracker</h1>
+                <p class="subtitle">Automated Test Reports</p>
+              </header>
+
+              <main>
+                <div class="intro">
+                  <p><strong>Welcome to the Pet Tracker test reports dashboard.</strong></p>
+                  <p>View detailed Allure reports for each test suite below.</p>
+                </div>
+
+                <div class="test-suites">
+                  <div class="suite-card">
+                    <div class="icon">⚛️</div>
+                    <h2>Frontend Tests <span class="badge">Vitest</span></h2>
+                    <p>React component tests and unit tests for the frontend application.</p>
+                    <a href="./reports/frontend/" id="frontend-link">View Latest Report →</a>
+                  </div>
+
+                  <div class="suite-card">
+                    <div class="icon">🐍</div>
+                    <h2>Backend Tests <span class="badge">Pytest</span></h2>
+                    <p>API tests, model tests, and unit tests for the Django backend.</p>
+                    <a href="./reports/backend/" id="backend-link">View Latest Report →</a>
+                  </div>
+
+                  <div class="suite-card">
+                    <div class="icon">🎭</div>
+                    <h2>E2E Tests <span class="badge">Playwright</span></h2>
+                    <p>End-to-end integration tests covering complete user journeys.</p>
+                    <a href="./reports/e2e/" id="e2e-link">View Latest Report →</a>
+                  </div>
+                </div>
+              </main>
+
+              <footer>
+                <p>Generated by GitHub Actions • Powered by Allure Framework</p>
+              </footer>
+            </div>
+
+            <script>
+              // Update links to point to latest reports
+              async function updateLinks() {
+                const suites = ['frontend', 'backend', 'e2e'];
+
+                for (const suite of suites) {
+                  try {
+                    const response = await fetch(`./reports/${suite}/`);
+                    const text = await response.text();
+
+                    // Parse directory listing to find latest build ID
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(text, 'text/html');
+                    const links = Array.from(doc.querySelectorAll('a'))
+                      .map(a => a.getAttribute('href'))
+                      .filter(href => href && /^\d+\/$/.test(href))
+                      .map(href => parseInt(href.replace('/', '')))
+                      .sort((a, b) => b - a);
+
+                    if (links.length > 0) {
+                      const latestBuild = links[0];
+                      document.getElementById(`${suite}-link`).href = `./reports/${suite}/${latestBuild}/index.html`;
+                    }
+                  } catch (error) {
+                    console.error(`Error fetching ${suite} reports:`, error);
+                  }
+                }
+              }
+
+              updateLinks();
+            </script>
+          </body>
+          </html>
+          EOF
+
+      - name: Create .nojekyll file
+        run: touch public/.nojekyll
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact for Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

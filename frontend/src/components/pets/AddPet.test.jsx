@@ -8,7 +8,6 @@ import { parentSuite, feature, story, severity, step, Severity } from '../../tes
 
 describe('AddPet Component', () => {
   beforeEach(() => {
-    parentSuite('Frontend Tests');
     vi.clearAllMocks();
   });
 

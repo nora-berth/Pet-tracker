@@ -14,6 +14,7 @@ jobs:
 
     permissions:
       contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout code
@@ -32,10 +33,40 @@ jobs:
         working-directory: ./frontend
         run: npm test -- --run
 
+      - name: Set up Java (for Allure)
+        if: always()
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Generate Allure report
+        if: always()
+        run: bash scripts/generate-report.sh frontend ${{ github.run_id }} ${{ github.sha }}
+        continue-on-error: true
+
+      - name: Upload Allure report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-frontend-${{ github.run_id }}
+          path: allure-report-frontend-${{ github.run_id }}/
+          retention-days: 7
+
       - name: Upload Allure results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: allure-results-frontend
           path: frontend/allure-results/
-          retention-days: 30
+          retention-days: 7
+
+      - name: Add report link to summary
+        if: always() && github.ref == 'refs/heads/main'
+        run: |
+          REPORT_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/frontend/${{ github.run_id }}/index.html"
+          echo "## 📊 Test Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "View the full Allure report: [$REPORT_URL]($REPORT_URL)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> Note: Report will be available after the deployment workflow completes (~2-3 minutes)" >> $GITHUB_STEP_SUMMARY
