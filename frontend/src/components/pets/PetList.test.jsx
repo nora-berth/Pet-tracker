@@ -5,10 +5,11 @@ import PetList from './PetList';
 import * as api from '../../services/api';
 import { parentSuite, feature, story, severity, step, Severity } from '../../test/allure-helpers';
 
-describe('PetList', () => {
+describe('PetList Component', () => {
+  parentSuite('Frontend Tests');
+
   beforeEach(() => {
     vi.clearAllMocks();
-    parentSuite('Frontend Tests');
   });
 
   it('shows loading state initially', () => {

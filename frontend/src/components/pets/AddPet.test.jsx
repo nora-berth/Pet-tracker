@@ -6,10 +6,11 @@ import AddPet from './AddPet';
 import * as api from '../../services/api';
 import { parentSuite, feature, story, severity, step, Severity } from '../../test/allure-helpers';
 
-describe('AddPet', () => {
+describe('AddPet Component', () => {
+  parentSuite('Frontend Tests');
+
   beforeEach(() => {
     vi.clearAllMocks();
-    parentSuite('Frontend Tests');
   });
 
   it('renders the form with all fields', () => {
