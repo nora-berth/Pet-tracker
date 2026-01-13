@@ -4,13 +4,12 @@ import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import AddPet from './AddPet';
 import * as api from '../../services/api';
-import { parentSuite, suite, feature, story, severity, step, Severity } from '../../test/allure-helpers';
+import { parentSuite, feature, story, severity, step, Severity } from '../../test/allure-helpers';
 
 describe('AddPet', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     parentSuite('Frontend Tests');
-    suite('Component Tests');
   });
 
   it('renders the form with all fields', () => {

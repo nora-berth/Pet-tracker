@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 import * as api from './services/api';
-import { parentSuite, suite, feature, story, severity, step, Severity } from './test/allure-helpers';
+import { parentSuite, feature, story, severity, step, Severity } from './test/allure-helpers';
 
 describe('App', () => {
   beforeEach(() => {
@@ -10,7 +10,6 @@ describe('App', () => {
       vi.spyOn(api.petAPI, 'getAll').mockResolvedValue({ data: [] });
     }
     parentSuite('Frontend Tests');
-    suite('Component Tests');
   });
 
   it('renders the app', () => {

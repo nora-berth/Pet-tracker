@@ -3,13 +3,12 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import PetList from './PetList';
 import * as api from '../../services/api';
-import { parentSuite, suite, feature, story, severity, step, Severity } from '../../test/allure-helpers';
+import { parentSuite, feature, story, severity, step, Severity } from '../../test/allure-helpers';
 
 describe('PetList', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     parentSuite('Frontend Tests');
-    suite('Component Tests');
   });
 
   it('shows loading state initially', () => {
