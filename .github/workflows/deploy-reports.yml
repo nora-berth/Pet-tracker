@@ -115,11 +115,76 @@ jobs:
           sudo ln -s /opt/allure/bin/allure /usr/bin/allure
 
       - name: Download previous Allure history
-        uses: actions/download-artifact@v4
+        uses: actions/github-script@v7
         continue-on-error: true
         with:
-          name: allure-history
-          path: allure-history
+          script: |
+            const fs = require('fs');
+
+            try {
+              // Get previous runs of this workflow
+              const runs = await github.rest.actions.listWorkflowRuns({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'deploy-reports.yml',
+                branch: 'main',
+                status: 'success',
+                per_page: 5,
+              });
+
+              // Find the most recent successful run (excluding current run)
+              const previousRun = runs.data.workflow_runs.find(run =>
+                run.id !== context.runId && run.status === 'success'
+              );
+
+              if (!previousRun) {
+                console.log('No previous successful run found');
+                return;
+              }
+
+              console.log(`Found previous run: ${previousRun.id}`);
+
+              // Get artifacts from previous run
+              const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: previousRun.id,
+              });
+
+              // Find allure-history artifact
+              const historyArtifact = artifacts.data.artifacts.find(a => a.name === 'allure-history');
+
+              if (!historyArtifact) {
+                console.log('No allure-history artifact found in previous run');
+                return;
+              }
+
+              console.log(`Downloading allure-history artifact: ${historyArtifact.id}`);
+
+              // Download the artifact
+              const download = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: historyArtifact.id,
+                archive_format: 'zip',
+              });
+
+              fs.writeFileSync('allure-history.zip', Buffer.from(download.data));
+              console.log('Downloaded allure-history.zip');
+            } catch (error) {
+              console.log(`Error downloading history: ${error.message}`);
+            }
+
+      - name: Extract history artifact
+        continue-on-error: true
+        run: |
+          if [ -f "allure-history.zip" ]; then
+            echo "Extracting allure-history.zip"
+            unzip -o allure-history.zip -d allure-history/
+            echo "History extracted successfully"
+          else
+            echo "No history archive found to extract"
+          fi
 
       - name: Copy history to results
         run: |
