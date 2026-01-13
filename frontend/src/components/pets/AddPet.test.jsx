@@ -7,9 +7,8 @@ import * as api from '../../services/api';
 import { parentSuite, feature, story, severity, step, Severity } from '../../test/allure-helpers';
 
 describe('AddPet Component', () => {
-  parentSuite('Frontend Tests');
-
   beforeEach(() => {
+    parentSuite('Frontend Tests');
     vi.clearAllMocks();
   });
 
