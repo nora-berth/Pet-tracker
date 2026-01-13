@@ -8,11 +8,11 @@ import { parentSuite, suite, feature, story, severity, step, Severity } from '..
 describe('PetList', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    parentSuite('Frontend Tests');
+    suite('Component Tests');
   });
 
   it('shows loading state initially', () => {
-    parentSuite('Frontend Tests');
-    suite('Component Tests');
     feature('Pet List Component');
     story('Loading States');
     severity(Severity.NORMAL);
@@ -40,8 +40,6 @@ describe('PetList', () => {
   });
 
   it('displays pets after loading', async () => {
-    parentSuite('Frontend Tests');
-    suite('Component Tests');
     feature('Pet List Component');
     story('Display Pets');
     severity(Severity.CRITICAL);
@@ -80,8 +78,6 @@ describe('PetList', () => {
   });
 
   it('shows message when no pets exist', async () => {
-    parentSuite('Frontend Tests');
-    suite('Component Tests');
     feature('Pet List Component');
     story('Empty States');
     severity(Severity.NORMAL);
@@ -114,8 +110,6 @@ describe('PetList', () => {
   });
 
   it('shows error message when API fails', async () => {
-    parentSuite('Frontend Tests');
-    suite('Component Tests');
     feature('Pet List Component');
     story('Error Handling');
     severity(Severity.CRITICAL);
@@ -147,8 +141,6 @@ describe('PetList', () => {
   });
 
   it('renders Add Pet button', async () => {
-    parentSuite('Frontend Tests');
-    suite('Component Tests');
     feature('Pet List Component');
     story('UI Elements');
     severity(Severity.NORMAL);
@@ -179,8 +171,6 @@ describe('PetList', () => {
   });
 
   it('renders clickable pet cards', async () => {
-    parentSuite('Frontend Tests');
-    suite('Component Tests');
     feature('Pet List Component');
     story('UI Elements');
     severity(Severity.NORMAL);
