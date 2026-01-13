@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import AddPet from './AddPet';
 import * as api from '../../services/api';
-import { feature, story, severity, step, Severity } from '../../test/allure-helpers';
+import { parentSuite, suite, feature, story, severity, step, Severity } from '../../test/allure-helpers';
 
 describe('AddPet', () => {
   beforeEach(() => {
@@ -12,6 +12,8 @@ describe('AddPet', () => {
   });
 
   it('renders the form with all fields', () => {
+    parentSuite('Frontend Tests');
+    suite('Component Tests');
     feature('Add Pet Component');
     story('Form Rendering');
     severity(Severity.CRITICAL);
@@ -37,6 +39,8 @@ describe('AddPet', () => {
   });
 
   it('submits form with valid data', async () => {
+    parentSuite('Frontend Tests');
+    suite('Component Tests');
     feature('Add Pet Component');
     story('Form Submission');
     severity(Severity.CRITICAL);
