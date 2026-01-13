@@ -114,6 +114,23 @@ jobs:
           sudo mv allure-2.25.0 /opt/allure
           sudo ln -s /opt/allure/bin/allure /usr/bin/allure
 
+      - name: Download previous Allure history
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: allure-history
+          path: allure-history
+
+      - name: Copy history to results
+        run: |
+          if [ -d "allure-history" ]; then
+            echo "Copying previous history to allure-results"
+            mkdir -p allure-results/history
+            cp -r allure-history/* allure-results/history/
+          else
+            echo "No previous history found"
+          fi
+
       - name: Generate combined Allure report
         run: |
           if [ -d "allure-results" ]; then
@@ -122,6 +139,21 @@ jobs:
             mkdir -p allure-report
             echo "<h1>No test results found</h1>" > allure-report/index.html
           fi
+
+      - name: Save history for next run
+        run: |
+          if [ -d "allure-report/history" ]; then
+            echo "Saving history for next run"
+            mkdir -p allure-history-backup
+            cp -r allure-report/history/* allure-history-backup/
+          fi
+
+      - name: Upload Allure history
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-history
+          path: allure-history-backup/
+          retention-days: 90
 
       - name: Upload Allure report
         uses: actions/upload-artifact@v4
