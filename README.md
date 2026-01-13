@@ -5,16 +5,7 @@ A pet health management application including multi-layer test automation, CI/CD
 Still a work in progress. Check out the [SETUP.md](SETUP.md) guide for detailed installation and configuration instructions.
 
 
-## Test Reports
-
 **[Test Reports with Allure](https://nora-berth.github.io/Pet-tracker/)**
-
-The reports include:
-- Test execution history and trends
-- Severity-based test categorization (BLOCKER, CRITICAL, NORMAL, TRIVIAL)
-- Test hierarchy (Epic → Feature → Story)
-- Detailed test steps
-- Coverage across backend, frontend, and E2E tests
 
 
 ## Test Architecture
