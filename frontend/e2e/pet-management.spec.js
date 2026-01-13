@@ -129,7 +129,6 @@ test.describe('Pet Management', () => {
 
 test.describe('Complete User Journey (Happy Path)', () => {
   test.beforeEach(async () => {
-    await allure.parentSuite('E2E Tests');
     await allure.epic('Pet Tracker');
     await deleteAllPetsViaAPI();
   });

@@ -48,7 +48,6 @@ class TestPetListAPI:
         assert response.data['count'] == 2
         assert len(response.data['results']) == 2
 
-@allure.parent_suite("Backend Tests")
 @allure.suite("API Tests")
 @allure.epic('Pet Tracker')
 @allure.feature('Pet API')
@@ -131,7 +130,6 @@ class TestPetDetailAPI:
         assert len(response.data['vaccinations']) == 1
         assert len(response.data['vet_visits']) == 1       
 
-@allure.parent_suite("Backend Tests")
 @allure.suite("API Tests")
 @allure.epic('Pet Tracker')
 @allure.feature('Pet API')
@@ -240,7 +238,6 @@ class TestPetCreateAPI:
         assert 'required' in str(response.data['name'][0]).lower()
         assert 'required' in str(response.data['species'][0]).lower()
 
-@allure.parent_suite("Backend Tests")
 @allure.suite("API Tests")
 @allure.epic('Pet Tracker')
 @allure.feature('Pet API')
@@ -370,7 +367,6 @@ class TestPetUpdateAPI:
         assert pet.species == 'dog'  # Unchanged
         assert pet.breed == 'Labrador'  # Unchanged
 
-@allure.parent_suite("Backend Tests")
 @allure.suite("API Tests")
 @allure.epic('Pet Tracker')
 @allure.feature('Pet API')

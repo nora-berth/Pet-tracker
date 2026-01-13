@@ -132,6 +132,45 @@ jobs:
           echo "Report structure:"
           find public/reports -type d -maxdepth 3
 
+      - name: Create reports manifest
+        run: |
+          # Create a JSON manifest with the latest build ID for each suite
+
+          echo "Building reports manifest..."
+          manifest_entries=()
+
+          # Find latest build for each suite
+          for suite in frontend backend e2e; do
+            if [ -d "public/reports/$suite" ]; then
+              latest=$(find "public/reports/$suite" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null | grep -E '^\d+$' | sort -n -r | head -1)
+              if [ -n "$latest" ]; then
+                manifest_entries+=("  \"$suite\": \"$latest\"")
+                echo "Found $suite: $latest"
+              fi
+            fi
+          done
+
+          # Build JSON
+          {
+            echo "{"
+            for i in "${!manifest_entries[@]}"; do
+              if [ $i -eq $((${#manifest_entries[@]} - 1)) ]; then
+                echo "${manifest_entries[$i]}"  # Last entry, no comma
+              else
+                echo "${manifest_entries[$i]},"
+              fi
+            done
+            echo "}"
+          } > public/reports-manifest.json
+
+          echo "Generated manifest:"
+          cat public/reports-manifest.json
+
+          # Validate JSON syntax
+          if command -v python3 &> /dev/null; then
+            python3 -m json.tool public/reports-manifest.json > /dev/null && echo "✓ JSON is valid" || echo "✗ JSON is invalid"
+          fi
+
       - name: Create index page
         run: |
           cat > public/index.html <<'EOF'
@@ -307,31 +346,22 @@ jobs:
             </div>
 
             <script>
-              // Update links to point to latest reports
+              // Update links to point to latest reports using the manifest
               async function updateLinks() {
-                const suites = ['frontend', 'backend', 'e2e'];
+                try {
+                  const response = await fetch('./reports-manifest.json');
+                  const manifest = await response.json();
 
-                for (const suite of suites) {
-                  try {
-                    const response = await fetch(`./reports/${suite}/`);
-                    const text = await response.text();
-
-                    // Parse directory listing to find latest build ID
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(text, 'text/html');
-                    const links = Array.from(doc.querySelectorAll('a'))
-                      .map(a => a.getAttribute('href'))
-                      .filter(href => href && /^\d+\/$/.test(href))
-                      .map(href => parseInt(href.replace('/', '')))
-                      .sort((a, b) => b - a);
-
-                    if (links.length > 0) {
-                      const latestBuild = links[0];
-                      document.getElementById(`${suite}-link`).href = `./reports/${suite}/${latestBuild}/index.html`;
+                  // Update each suite link with the latest build ID
+                  for (const [suite, buildId] of Object.entries(manifest)) {
+                    const linkElement = document.getElementById(`${suite}-link`);
+                    if (linkElement && buildId) {
+                      linkElement.href = `./reports/${suite}/${buildId}/index.html`;
                     }
-                  } catch (error) {
-                    console.error(`Error fetching ${suite} reports:`, error);
                   }
+                } catch (error) {
+                  console.error('Error loading reports manifest:', error);
+                  // If manifest fails, keep the default directory links
                 }
               }
 
