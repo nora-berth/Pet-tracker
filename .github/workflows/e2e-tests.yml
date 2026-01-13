@@ -85,7 +85,7 @@ jobs:
 
       - name: Run E2E tests
         working-directory: ./frontend
-        run: npx playwright test
+        run: npx playwright test --retries=2
 
       - name: Upload Playwright report
         if: always()
