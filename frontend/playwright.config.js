@@ -10,6 +10,7 @@ export default defineConfig({
     ['html'],
     ['allure-playwright', {
       resultsDir: 'allure-results-e2e',
+      suiteTitle: false,
     }]
   ],
   use: {
