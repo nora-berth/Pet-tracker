@@ -13,7 +13,7 @@ describe('App', () => {
 
   it('renders the app', () => {
     parentSuite('Frontend Tests');
-    suite('Unit Tests');
+    suite('Component Tests');
     feature('App Component');
     story('Rendering');
     severity(Severity.CRITICAL);
