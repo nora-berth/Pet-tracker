@@ -9,11 +9,11 @@ describe('App', () => {
     if (api.petAPI && api.petAPI.getAll) {
       vi.spyOn(api.petAPI, 'getAll').mockResolvedValue({ data: [] });
     }
+    parentSuite('Frontend Tests');
+    suite('Component Tests');
   });
 
   it('renders the app', () => {
-    parentSuite('Frontend Tests');
-    suite('Component Tests');
     feature('App Component');
     story('Rendering');
     severity(Severity.CRITICAL);
