@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import PetList from './PetList';
 import * as api from '../../services/api';
-import { parentSuite, feature, story, severity, step, Severity } from '../../test/allure-helpers';
+import { feature, story, severity, step, Severity } from '../../test/allure-helpers';
 
 describe('PetList Component', () => {
   beforeEach(() => {

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import AddPet from './AddPet';
 import * as api from '../../services/api';
-import { parentSuite, feature, story, severity, step, Severity } from '../../test/allure-helpers';
+import { feature, story, severity, step, Severity } from '../../test/allure-helpers';
 
 describe('AddPet Component', () => {
   beforeEach(() => {
