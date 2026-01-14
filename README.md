@@ -79,7 +79,12 @@ graph TB
 ```
 pet-tracker/
 ├── .github/workflows/
-│   └── ci.yml
+│   ├── frontend-tests.yml
+│   ├── backend-tests.yml
+│   ├── e2e-tests.yml
+│   └── deploy-reports-pages.yml
+├── scripts/
+│   └── generate-report.sh
 ├── backend/
 │   ├── config/
 │   ├── pets/
