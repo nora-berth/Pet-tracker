@@ -8,6 +8,7 @@ Still a work in progress. Check out the [SETUP.md](SETUP.md) guide for detailed 
 ## CI/CD Pipeline
 
 [Pipeline](https://github.com/nora-berth/Pet-tracker/actions)
+
 [Test Reports](https://nora-berth.github.io/Pet-tracker/)
 
 ### Pipeline Architecture
