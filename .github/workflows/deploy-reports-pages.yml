@@ -141,12 +141,19 @@ jobs:
 
           # Find latest build for each suite
           for suite in frontend backend e2e; do
-            if [ -d "public/reports/$suite" ]; then
-              latest=$(find "public/reports/$suite" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null | grep -E '^\d+$' | sort -n -r | head -1)
+            suite_dir="public/reports/$suite"
+            if [ -d "$suite_dir" ]; then
+              echo "Checking $suite_dir..."
+              # Use ls and basename instead of find -printf for better compatibility
+              latest=$(ls -1 "$suite_dir" | grep -E '^[0-9]+$' | sort -n -r | head -1)
               if [ -n "$latest" ]; then
                 manifest_entries+=("  \"$suite\": \"$latest\"")
                 echo "Found $suite: $latest"
+              else
+                echo "No builds found in $suite_dir"
               fi
+            else
+              echo "Directory $suite_dir does not exist"
             fi
           done
 
@@ -301,6 +308,19 @@ jobs:
                 font-size: 0.875rem;
                 margin-left: 0.5rem;
               }
+
+              .status-message {
+                font-size: 0.875rem;
+                color: #666;
+                margin-top: 0.5rem;
+                min-height: 1.2rem;
+              }
+
+              .report-link.disabled {
+                opacity: 0.5;
+                pointer-events: none;
+                cursor: not-allowed;
+              }
             </style>
           </head>
           <body>
@@ -321,21 +341,24 @@ jobs:
                     <div class="icon">⚛️</div>
                     <h2>Frontend Tests <span class="badge">Vitest</span></h2>
                     <p>React component tests and unit tests for the frontend application.</p>
-                    <a href="./reports/frontend/" id="frontend-link">View Latest Report →</a>
+                    <a href="#" id="frontend-link" class="report-link">View Latest Report →</a>
+                    <p class="status-message" id="frontend-status"></p>
                   </div>
 
                   <div class="suite-card">
                     <div class="icon">🐍</div>
                     <h2>Backend Tests <span class="badge">Pytest</span></h2>
                     <p>API tests, model tests, and unit tests for the Django backend.</p>
-                    <a href="./reports/backend/" id="backend-link">View Latest Report →</a>
+                    <a href="#" id="backend-link" class="report-link">View Latest Report →</a>
+                    <p class="status-message" id="backend-status"></p>
                   </div>
 
                   <div class="suite-card">
                     <div class="icon">🎭</div>
                     <h2>E2E Tests <span class="badge">Playwright</span></h2>
                     <p>End-to-end integration tests covering complete user journeys.</p>
-                    <a href="./reports/e2e/" id="e2e-link">View Latest Report →</a>
+                    <a href="#" id="e2e-link" class="report-link">View Latest Report →</a>
+                    <p class="status-message" id="e2e-status"></p>
                   </div>
                 </div>
               </main>
@@ -348,23 +371,49 @@ jobs:
             <script>
               // Update links to point to latest reports using the manifest
               async function updateLinks() {
+                const suites = ['frontend', 'backend', 'e2e'];
+
                 try {
                   const response = await fetch('./reports-manifest.json');
+
+                  if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                  }
+
                   const manifest = await response.json();
+                  console.log('Loaded manifest:', manifest);
 
                   // Update each suite link with the latest build ID
-                  for (const [suite, buildId] of Object.entries(manifest)) {
+                  for (const suite of suites) {
                     const linkElement = document.getElementById(`${suite}-link`);
-                    if (linkElement && buildId) {
+                    const statusElement = document.getElementById(`${suite}-status`);
+
+                    if (manifest[suite]) {
+                      const buildId = manifest[suite];
                       linkElement.href = `./reports/${suite}/${buildId}/index.html`;
+                      linkElement.classList.remove('disabled');
+                      statusElement.textContent = `Build #${buildId}`;
+                      console.log(`✓ ${suite}: ./reports/${suite}/${buildId}/index.html`);
+                    } else {
+                      linkElement.classList.add('disabled');
+                      statusElement.textContent = 'No reports available yet';
+                      console.warn(`✗ ${suite}: No report found in manifest`);
                     }
                   }
                 } catch (error) {
                   console.error('Error loading reports manifest:', error);
-                  // If manifest fails, keep the default directory links
+
+                  // Show error status for all suites
+                  for (const suite of suites) {
+                    const linkElement = document.getElementById(`${suite}-link`);
+                    const statusElement = document.getElementById(`${suite}-status`);
+                    linkElement.classList.add('disabled');
+                    statusElement.textContent = 'Reports loading... Please refresh in a moment';
+                  }
                 }
               }
 
+              // Run on page load
               updateLinks();
             </script>
           </body>
