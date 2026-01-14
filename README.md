@@ -5,39 +5,11 @@ A pet health management application including multi-layer test automation, CI/CD
 Still a work in progress. Check out the [SETUP.md](SETUP.md) guide for detailed installation and configuration instructions.
 
 
-## Test Architecture
-
-### Backend Tests
-**Location**: `backend/pets/tests/`
-
-- **Framework**: Pytest
-- **Test Files**:
-  - [test_models.py](backend/pets/tests/test_models.py) - Model layer validation (Pet, WeightRecord, Vaccination, VetVisit)
-  - [test_api.py](backend/pets/tests/test_api.py) - REST API CRUD operations, error handling, validation
-
-### Frontend Tests
-**Location**: `frontend/src/`
-
-- **Framework**: Vitest + React Testing Library
-- **Test Files**:
-  - [App.test.jsx](frontend/src/App.test.jsx) - App component rendering
-  - [PetList.test.jsx](frontend/src/components/pets/PetList.test.jsx) - Pet list display and interactions
-  - [AddPet.test.jsx](frontend/src/components/pets/AddPet.test.jsx) - Pet creation form validation
-
-### End-to-End Tests
-**Location**: `frontend/e2e/`
-
-- **Framework**: Playwright
-- **Test Files**:
-  - [pet-management.spec.js](frontend/e2e/pet-management.spec.js) - Critical user paths
-  - [fixtures/pet-fixtures.js](frontend/e2e/fixtures/pet-fixtures.js) - Test data management
-  - [helpers/api-helpers.js](frontend/e2e/helpers/api-helpers.js) - API utilities for test setup
-
-
 ## CI/CD Pipeline
 
-**Pipeline**: [View CI Workflows](https://github.com/nora-berth/Pet-tracker/actions)
-**Test Reports**: [View Allure Reports Dashboard](https://nora-berth.github.io/Pet-tracker/)
+[Pipeline](https://github.com/nora-berth/Pet-tracker/actions)
+
+[Test Reports](https://nora-berth.github.io/Pet-tracker/)
 
 ### Pipeline Architecture
 
@@ -64,14 +36,14 @@ graph TB
 - **Backend**: Django + Django REST Framework
 - **Frontend**: React + Vite + React Router
 - **Database**: PostgreSQL (Docker)
-- **API**: RESTful with ViewSets and nested serializers
+- **API**: RESTful
 
 ### Testing & QA
-- **Backend Testing**: Pytest + Pytest-Django + Pytest-cov
+- **Backend Testing**: Pytest
 - **Frontend Testing**: Vitest + React Testing Library
 - **E2E Testing**: Playwright
 - **Test Reporting**: Allure (with Pytest, Vitest, Playwright integrations)
-- **CI/CD**: GitHub Actions with multi-job workflow
+- **CI/CD**: GitHub Actions
 
 
 ## Project Structure
