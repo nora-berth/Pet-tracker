@@ -105,11 +105,11 @@ npx playwright show-report          # View HTML report
 
 ### Test File Locations
 - **Backend tests**: `backend/pets/tests/`
-  - `test_models.py` - 17 model layer tests (Pet, WeightRecord, Vaccination, VetVisit)
-  - `test_api.py` - 20+ API tests covering CRUD operations, validation, error handling
+  - `test_models.py` - model layer tests (Pet, WeightRecord, Vaccination, VetVisit)
+  - `test_api.py` - API tests covering CRUD operations, validation, error handling
 - **Frontend unit tests**: `frontend/src/App.test.jsx`
 - **E2E tests**: `frontend/e2e/`
-  - `pet-management.spec.js` - 6 E2E user journey tests
+  - `pet-management.spec.js` - E2E user journey tests
   - `fixtures/pet-fixtures.js` - Test data fixtures with automatic cleanup
   - `helpers/api-helpers.js` - API utilities for test setup
 
