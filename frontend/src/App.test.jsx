@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 import * as api from './services/api';
-import { parentSuite, feature, story, severity, step, Severity } from './test/allure-helpers';
+import { feature, story, severity, step, Severity } from './test/allure-helpers';
 
 describe('App Component', () => {
   beforeEach(() => {
