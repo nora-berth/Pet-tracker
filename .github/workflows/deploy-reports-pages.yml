@@ -134,18 +134,15 @@ jobs:
 
       - name: Create reports manifest
         run: |
-          # Create a JSON manifest with the latest build ID for each suite
-
           echo "Building reports manifest..."
           manifest_entries=()
 
           # Find latest build for each suite
           for suite in frontend backend e2e; do
             if [ -d "public/reports/$suite" ]; then
-              latest=$(find "public/reports/$suite" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null | grep -E '^\d+$' | sort -n -r | head -1)
+              latest=$(ls -1 "public/reports/$suite" | grep -E '^[0-9]+$' | sort -n -r | head -1)
               if [ -n "$latest" ]; then
                 manifest_entries+=("  \"$suite\": \"$latest\"")
-                echo "Found $suite: $latest"
               fi
             fi
           done
@@ -155,7 +152,7 @@ jobs:
             echo "{"
             for i in "${!manifest_entries[@]}"; do
               if [ $i -eq $((${#manifest_entries[@]} - 1)) ]; then
-                echo "${manifest_entries[$i]}"  # Last entry, no comma
+                echo "${manifest_entries[$i]}"
               else
                 echo "${manifest_entries[$i]},"
               fi
@@ -163,13 +160,7 @@ jobs:
             echo "}"
           } > public/reports-manifest.json
 
-          echo "Generated manifest:"
           cat public/reports-manifest.json
-
-          # Validate JSON syntax
-          if command -v python3 &> /dev/null; then
-            python3 -m json.tool public/reports-manifest.json > /dev/null && echo "✓ JSON is valid" || echo "✗ JSON is invalid"
-          fi
 
       - name: Create index page
         run: |
@@ -301,6 +292,7 @@ jobs:
                 font-size: 0.875rem;
                 margin-left: 0.5rem;
               }
+
             </style>
           </head>
           <body>
@@ -321,21 +313,21 @@ jobs:
                     <div class="icon">⚛️</div>
                     <h2>Frontend Tests <span class="badge">Vitest</span></h2>
                     <p>React component tests and unit tests for the frontend application.</p>
-                    <a href="./reports/frontend/" id="frontend-link">View Latest Report →</a>
+                    <a href="#" id="frontend-link">View Latest Report →</a>
                   </div>
 
                   <div class="suite-card">
                     <div class="icon">🐍</div>
                     <h2>Backend Tests <span class="badge">Pytest</span></h2>
                     <p>API tests, model tests, and unit tests for the Django backend.</p>
-                    <a href="./reports/backend/" id="backend-link">View Latest Report →</a>
+                    <a href="#" id="backend-link">View Latest Report →</a>
                   </div>
 
                   <div class="suite-card">
                     <div class="icon">🎭</div>
                     <h2>E2E Tests <span class="badge">Playwright</span></h2>
                     <p>End-to-end integration tests covering complete user journeys.</p>
-                    <a href="./reports/e2e/" id="e2e-link">View Latest Report →</a>
+                    <a href="#" id="e2e-link">View Latest Report →</a>
                   </div>
                 </div>
               </main>
@@ -346,26 +338,14 @@ jobs:
             </div>
 
             <script>
-              // Update links to point to latest reports using the manifest
-              async function updateLinks() {
-                try {
-                  const response = await fetch('./reports-manifest.json');
-                  const manifest = await response.json();
-
-                  // Update each suite link with the latest build ID
-                  for (const [suite, buildId] of Object.entries(manifest)) {
-                    const linkElement = document.getElementById(`${suite}-link`);
-                    if (linkElement && buildId) {
-                      linkElement.href = `./reports/${suite}/${buildId}/index.html`;
-                    }
-                  }
-                } catch (error) {
-                  console.error('Error loading reports manifest:', error);
-                  // If manifest fails, keep the default directory links
-                }
-              }
-
-              updateLinks();
+              fetch('./reports-manifest.json')
+                .then(res => res.json())
+                .then(manifest => {
+                  Object.entries(manifest).forEach(([suite, buildId]) => {
+                    const link = document.getElementById(`${suite}-link`);
+                    if (link) link.href = `./reports/${suite}/${buildId}/index.html`;
+                  });
+                });
             </script>
           </body>
           </html>
