@@ -1,0 +1,177 @@
+{
+  "info": {
+    "_postman_id": "a4e31a49-5d31-4a4c-b871-9e73ca4a2fe9",
+    "name": "Pet Tracker API",
+    "description": "StartFragment Comprehensive API tests for Pet Tracker applicationEndFragment",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51213646",
+    "_collection_link": "https://go.postman.co/collection/51213646-a4e31a49-5d31-4a4c-b871-9e73ca4a2fe9?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Get All Pets",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response time is less than 500ms\", function () {\r",
+              "    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response has pagination structure\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData).to.have.property('count');\r",
+              "    pm.expect(jsonData).to.have.property('results');\r",
+              "    pm.expect(jsonData.results).to.be.an('array');\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Content-Type is application/json\", function () {\r",
+              "    pm.response.to.have.header(\"Content-Type\");\r",
+              "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}{{apiPath}}/pets/",
+          "host": [
+            "{{baseUrl}}{{apiPath}}"
+          ],
+          "path": [
+            "pets",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Pet",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201 Created\", function () {\r",
+              "    pm.response.to.have.status(201);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response contains pet data\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData).to.have.property('id');\r",
+              "    pm.expect(jsonData).to.have.property('name');\r",
+              "    pm.expect(jsonData.name).to.equal('API Test Pet');\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Pet species is dog\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.species).to.equal('dog');\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Pet has created_at timestamp\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData).to.have.property('created_at');\r",
+              "    pm.expect(jsonData.created_at).to.not.be.empty;\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Store pet ID in environment\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.environment.set(\"petId\", jsonData.id);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"API Test Pet\",\r\n  \"species\": \"dog\",\r\n  \"breed\": \"Golden Retriever\",\r\n  \"birth_date\": \"2020-01-15\",\r\n  \"notes\": \"Created via Postman API test\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}{{apiPath}}/pets/",
+          "host": [
+            "{{baseUrl}}{{apiPath}}"
+          ],
+          "path": [
+            "pets",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Pet by ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Pet ID matches\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.id).to.equal(parseInt(pm.environment.get(\"petId\")));\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Pet name is correct\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.name).to.equal('API Test Pet');\r",
+              "});\r",
+              "\r",
+              "pm.test(\"All required fields present\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData).to.include.all.keys(\r",
+              "        'id', 'name', 'species', 'created_at', 'updated_at'\r",
+              "    );\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}{{apiPath}}/pets/{{petId}}/",
+          "host": [
+            "{{baseUrl}}{{apiPath}}"
+          ],
+          "path": [
+            "pets",
+            "{{petId}}",
+            ""
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
