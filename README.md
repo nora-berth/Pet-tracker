@@ -42,6 +42,7 @@ graph TB
 - **Backend Testing**: Pytest
 - **Frontend Testing**: Vitest + React Testing Library
 - **E2E Testing**: Playwright
+- **API Testing**: Postman
 - **Test Reporting**: Allure (with Pytest, Vitest, Playwright integrations)
 - **CI/CD**: GitHub Actions
 
@@ -60,13 +61,17 @@ pet-tracker/
 ├── backend/
 │   ├── config/
 │   ├── pets/
-│   │   ├── models.py     
+│   │   ├── models.py
 │   │   ├── views.py
-│   │   ├── serializers.py   
+│   │   ├── serializers.py
 │   │   └── tests/
-│   │       ├── test_models.py 
+│   │       ├── test_models.py
 │   │       └── test_api.py
-│   ├── pytest.ini     
+│   ├── postman/
+│   │   ├── Pet Tracker API.postman_collection.json
+│   │   ├── Local Development.postman_environment.json
+│   │   └── README.md
+│   ├── pytest.ini
 │   ├── requirements.txt
 │   └── manage.py
 ├── frontend/
