@@ -52,8 +52,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Install Newman
-        run: npm install -g newman
+      - name: Install Newman and reporters
+        run: npm install -g newman newman-reporter-htmlextra
 
       - name: Run migrations
         working-directory: ./backend
@@ -81,10 +81,51 @@ jobs:
         run: |
           newman run "backend/postman/Pet Tracker API.postman_collection.json" \
             -e "backend/postman/Local Development.postman_environment.json" \
-            --reporters cli,json \
-            --reporter-json-export newman-results.json
+            --reporters cli,json,htmlextra \
+            --reporter-json-export newman-results.json \
+            --reporter-htmlextra-export newman-report.html
 
-      - name: Upload Newman results
+      - name: Add results to GitHub Step Summary
+        if: always()
+        run: |
+          if [ -f newman-results.json ]; then
+            TOTAL=$(jq '.run.stats.assertions.total' newman-results.json)
+            FAILED=$(jq '.run.stats.assertions.failed' newman-results.json)
+            PASSED=$((TOTAL - FAILED))
+            REQUESTS=$(jq '.run.stats.requests.total' newman-results.json)
+            DURATION=$(jq '.run.timings.completed - .run.timings.started' newman-results.json)
+
+            if [ "$FAILED" -eq 0 ]; then
+              STATUS="All tests passed"
+            else
+              STATUS="$FAILED assertion(s) failed"
+            fi
+
+            echo "## API Tests (Newman)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Status | $STATUS |" >> $GITHUB_STEP_SUMMARY
+            echo "| Requests | $REQUESTS |" >> $GITHUB_STEP_SUMMARY
+            echo "| Assertions | $PASSED / $TOTAL passed |" >> $GITHUB_STEP_SUMMARY
+            echo "| Duration | ${DURATION}ms |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Download the \`newman-report\` artifact for the full HTML report." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## API Tests (Newman)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Newman results file not found. Tests may not have run." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload Newman HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-report
+          path: newman-report.html
+          retention-days: 30
+
+      - name: Upload Newman JSON results
         if: always()
         uses: actions/upload-artifact@v4
         with:
