@@ -10,7 +10,7 @@ Pet Tracker is a full-stack web application for managing pet health records. It 
 - This is a QA portfolio project - testing quality is paramount
 - All new features MUST include tests at multiple layers (model, API, E2E)
 - CI/CD pipeline must pass before merging to main
-- Allure test reports are publicly visible at https://nora-berth.github.io/pet-tracker/
+- Allure reports are used for E2E tests only and deployed to GitHub Pages
 - Test coverage and quality demonstrate professional QA engineering skills
 
 ## Environment Requirements
@@ -58,10 +58,6 @@ pytest pets/tests/test_api.py       # Run API tests
 pytest -k "test_name"               # Run test by name
 pytest --cov=pets --cov-report=term # Run with coverage report
 pytest --cov=pets --cov-report=html # Generate HTML coverage report
-
-# Backend tests with Allure reporting
-pytest --alluredir=allure-results   # Generate Allure results
-allure serve allure-results         # View Allure report in browser
 
 # Frontend unit tests (Vitest)
 cd frontend
@@ -114,11 +110,9 @@ npx playwright show-report          # View HTML report
   - `helpers/api-helpers.js` - API utilities for test setup
 
 ### Test Reporting
-- **Allure Framework** is integrated across all test layers
-- Test reports are automatically generated in CI and deployed to GitHub Pages
-- Local reports can be generated with `pytest --alluredir=allure-results` and viewed with `allure serve allure-results`
-- Tests are organized with severity levels: BLOCKER, CRITICAL, NORMAL, TRIVIAL
-- Test hierarchy: Epic → Feature → Story
+- **Allure Framework** is used for E2E tests only
+- E2E Allure reports are automatically generated in CI and deployed to GitHub Pages
+- Backend and frontend unit tests report via native pytest and Vitest output
 
 ## Key File Relationships
 
@@ -150,7 +144,6 @@ Understanding how files interact helps maintain the codebase:
 ### When Writing Tests
 
 **Backend Tests (pytest)**
-- Always use Allure decorators: `@allure.epic()`, `@allure.feature()`, `@allure.story()`, `@allure.severity()`
 - Follow AAA pattern (Arrange-Act-Assert) with clear comments
 - Use descriptive test names: `test_<function>_<scenario>` (e.g., `test_pet_create_with_required_fields`)
 - Mark database tests with `@pytest.mark.django_db`
@@ -159,7 +152,6 @@ Understanding how files interact helps maintain the codebase:
 
 **Frontend Unit Tests (Vitest)**
 - Mock API calls using `vi.spyOn(api.moduleAPI, 'method').mockResolvedValue()`
-- Use Allure helpers from `src/test/allure-helpers.js`
 - Test user-visible behavior, not implementation details
 
 **E2E Tests (Playwright)**
@@ -193,4 +185,4 @@ Understanding how files interact helps maintain the codebase:
 - ❌ **DON'T** add new features without tests at multiple layers
 - ❌ **DON'T** use `pytest.mark.skip` without a good reason and issue reference
 - ❌ **DON'T** commit with failing tests or commented-out tests
-- ❌ **DON'T** forget to add Allure annotations to new tests
+- ❌ **DON'T** forget to add Allure annotations to new E2E tests

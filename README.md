@@ -9,24 +9,19 @@ Still a work in progress. Check out the [SETUP.md](SETUP.md) guide for detailed 
 
 [Pipeline](https://github.com/nora-berth/Pet-tracker/actions)
 
-[Test Reports](https://nora-berth.github.io/Pet-tracker/)
+[E2E Allure Report](https://nora-berth.github.io/pet-tracker/)
 
 ### Pipeline Architecture
 
 ```mermaid
 graph TB
-    A[Frontend Tests Workflow] -->|Generate Report| A1[Upload Frontend Report Artifact]
-    B[Backend Tests Workflow] -->|Generate Report| B1[Upload Backend Report Artifact]
-    C[E2E Tests Workflow] -->|Generate Report| C1[Upload E2E Report Artifact]
-
-    A1 -->|On main branch merge| D[Deploy Reports to GitHub Pages]
-    B1 -->|On main branch merge| D
-    C1 -->|On main branch merge| D
-
-    D --> E[Public Dashboard]
-    E --> E1[Frontend Report]
-    E --> E2[Backend Report]
-    E --> E3[E2E Report]
+    A[Frontend Tests Workflow] -->|Vitest native output| A1[CI pass/fail status]
+    B[Backend Tests Workflow] -->|Pytest native output + coverage| B1[CI pass/fail status]
+    C[E2E Tests Workflow] --> C1[Playwright HTML Report artifact]
+    C[E2E Tests Workflow] --> C2[Allure Results artifact]
+    C2 -->|On main| D[Deploy Allure Report Workflow]
+    D -->|Fetches history from Pages| D
+    D --> E[GitHub Pages - Allure Report with History]
 ```
 
 
@@ -43,7 +38,7 @@ graph TB
 - **Frontend Testing**: Vitest + React Testing Library
 - **E2E Testing**: Playwright
 - **API Testing**: Postman
-- **Test Reporting**: Allure (with Pytest, Vitest, Playwright integrations)
+- **Test Reporting**: Allure (for E2E, deployed to GitHub Pages)
 - **CI/CD**: GitHub Actions
 
 
@@ -55,9 +50,7 @@ pet-tracker/
 │   ├── frontend-tests.yml
 │   ├── backend-tests.yml
 │   ├── e2e-tests.yml
-│   └── deploy-reports-pages.yml
-├── scripts/
-│   └── generate-report.sh
+│   └── deploy-allure-pages.yml
 ├── backend/
 │   ├── config/
 │   ├── pets/
@@ -87,8 +80,7 @@ pet-tracker/
 │   │   ├── pages/
 │   │   ├── services/
 │   │   └── test/
-│   │       ├── setup.js
-│   │       └── allure-helpers.js
+│   │       └── setup.js
 │   ├── playwright.config.js
 │   ├── vite.config.js
 │   └── package.json

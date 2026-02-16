@@ -96,26 +96,6 @@ jobs:
           path: frontend/playwright-report/
           retention-days: 30
 
-      - name: Set up Java (for Allure)
-        if: always()
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Generate Allure report
-        if: always()
-        run: bash scripts/generate-report.sh e2e ${{ github.run_id }} ${{ github.sha }}
-        continue-on-error: true
-
-      - name: Upload Allure report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-report-e2e-${{ github.run_id }}
-          path: allure-report-e2e-${{ github.run_id }}/
-          retention-days: 7
-
       - name: Upload Allure results
         if: always()
         uses: actions/upload-artifact@v4
@@ -125,11 +105,13 @@ jobs:
           retention-days: 7
 
       - name: Add report link to summary
-        if: always() && github.ref == 'refs/heads/main'
+        if: always()
         run: |
-          REPORT_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/e2e/${{ github.run_id }}/index.html"
-          echo "## 📊 Test Report" >> $GITHUB_STEP_SUMMARY
+          ARTIFACTS_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts"
+          ALLURE_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+          echo "## Test Reports" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "View the full Allure report: [$REPORT_URL]($REPORT_URL)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "> Note: Report will be available after the deployment workflow completes (~2-3 minutes)" >> $GITHUB_STEP_SUMMARY
+          echo "- Playwright HTML report: [Download artifact]($ARTIFACTS_URL)" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "- Allure report (with history): [$ALLURE_URL]($ALLURE_URL) — available after deploy workflow completes" >> $GITHUB_STEP_SUMMARY
+          fi
