@@ -64,10 +64,3 @@ jobs:
           name: backend-coverage
           path: backend/coverage.xml
 
-      - name: Add report link to summary
-        if: always()
-        run: |
-          ARTIFACTS_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts"
-          echo "## Test Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Download the Allure report artifact: [allure-report-backend-${{ github.run_id }}]($ARTIFACTS_URL)" >> $GITHUB_STEP_SUMMARY
