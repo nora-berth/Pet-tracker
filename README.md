@@ -9,7 +9,7 @@ Still a work in progress. Check out the [SETUP.md](SETUP.md) guide for detailed 
 
 [Pipeline](https://github.com/nora-berth/Pet-tracker/actions)
 
-[E2E Allure Report](https://nora-berth.github.io/pet-tracker/)
+[E2E Allure Report](https://nora-berth.github.io/Pet-tracker/)
 
 ### Pipeline Architecture
 
@@ -20,8 +20,6 @@ graph TB
     C[E2E Tests Workflow] --> C1[Playwright HTML Report artifact]
     C[E2E Tests Workflow] --> C2[Allure Results artifact]
     C2 -->|On main| D[Deploy Allure Report Workflow]
-    D -->|Fetches history from Pages| D
-    D --> E[GitHub Pages - Allure Report with History]
 ```
 
 
