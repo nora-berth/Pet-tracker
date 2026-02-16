@@ -1,5 +1,10 @@
 # Pet Tracker - My app + QA Project
 
+[![codecov](https://codecov.io/gh/nora-berth/pet-tracker/graph/badge.svg)](https://codecov.io/gh/nora-berth/pet-tracker)
+![Backend Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/backend-tests.yml/badge.svg)
+![Frontend Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/frontend-tests.yml/badge.svg)
+![E2E Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/e2e-tests.yml/badge.svg)
+
 
 A pet health management application including multi-layer test automation, CI/CD pipeline, and test reporting.
 Still a work in progress. Check out the [SETUP.md](SETUP.md) guide for detailed installation and configuration instructions.
