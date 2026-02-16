@@ -4,6 +4,7 @@
 ![Backend Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/backend-tests.yml/badge.svg)
 ![Frontend Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/frontend-tests.yml/badge.svg)
 ![E2E Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/e2e-tests.yml/badge.svg)
+![API Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/api-tests.yml/badge.svg)
 
 
 A pet health management application including multi-layer test automation, CI/CD pipeline, and test reporting.
@@ -29,8 +30,8 @@ Still a work in progress. Check out the [SETUP.md](SETUP.md) guide for detailed 
 - **Backend Testing**: Pytest
 - **Frontend Testing**: Vitest + React Testing Library
 - **E2E Testing**: Playwright
-- **API Testing**: Postman
-- **Test Reporting**: Allure (for E2E, deployed to GitHub Pages)
+- **API Testing**: Postman + Newman (CI)
+- **Test Reporting**: Allure (for E2E, deployed to GitHub Pages), Newman htmlextra (for API tests)
 - **CI/CD**: GitHub Actions
 
 
@@ -42,6 +43,7 @@ pet-tracker/
 │   ├── frontend-tests.yml
 │   ├── backend-tests.yml
 │   ├── e2e-tests.yml
+│   ├── api-tests.yml
 │   └── deploy-allure-pages.yml
 ├── backend/
 │   ├── config/
