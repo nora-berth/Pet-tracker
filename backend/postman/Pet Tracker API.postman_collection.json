@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "a4e31a49-5d31-4a4c-b871-9e73ca4a2fe9",
     "name": "Pet Tracker API",
-    "description": "StartFragment Comprehensive API tests for Pet Tracker applicationEndFragment",
+    "description": "Comprehensive API tests for Pet Tracker application",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [

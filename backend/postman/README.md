@@ -55,40 +55,6 @@ docker-compose up -d
 3. View test results in the **Test Results** tab
 
 
-## Collection Structure
-
-### Endpoints Covered
-
-| Request | Method | Endpoint | Description |
-|---------|--------|----------|-------------|
-| Get All Pets | GET | `/api/pets/` | Retrieves paginated list of all pets |
-| Create Pet | POST | `/api/pets/` | Creates a new pet and stores ID in environment |
-| Get Pet by ID | GET | `/api/pets/{petId}/` | Retrieves specific pet by ID |
-
-### Automated Tests Included
-
-Each request includes multiple automated tests:
-
-**Get All Pets**
-- ✓ Status code is 200
-- ✓ Response time is less than 500ms
-- ✓ Response has pagination structure (count, results)
-- ✓ Content-Type is application/json
-
-**Create Pet**
-- ✓ Status code is 201 Created
-- ✓ Response contains pet data (id, name)
-- ✓ Pet species matches request
-- ✓ Pet has created_at timestamp
-- ✓ Stores pet ID in environment for subsequent requests
-
-**Get Pet by ID**
-- ✓ Status code is 200
-- ✓ Pet ID matches the stored environment variable
-- ✓ Pet name is correct
-- ✓ All required fields are present (id, name, species, created_at, updated_at)
-
-
 ## Environment Variables
 
 The Local Development environment uses the following variables:
@@ -97,10 +63,10 @@ The Local Development environment uses the following variables:
 |----------|---------|----------------|
 | `baseUrl` | Base URL of the API server | No (set manually) |
 | `apiPath` | API path prefix | No (set manually) |
-| `petId` | ID of created pet | Yes (from Create Pet) |
-| `weightRecordId` | ID of weight record | Yes (future use) |
-| `vaccinationId` | ID of vaccination record | Yes (future use) |
-| `vetVisitId` | ID of vet visit record | Yes (future use) |
+| `petId` | ID of created pet | Yes |
+| `weightRecordId` | ID of weight record | Yes |
+| `vaccinationId` | ID of vaccination record | Yes |
+| `vetVisitId` | ID of vet visit record | Yes |
 
 
 ## Test Execution Order
@@ -110,8 +76,34 @@ For best results, run requests in this order:
 1. **Get All Pets** - Verifies API is accessible and returns data
 2. **Create Pet** - Creates a test pet and stores its ID
 3. **Get Pet by ID** - Verifies the created pet can be retrieved
+4. **Update Pet** - Full update of all fields via PUT
+5. **Partial Update Pet** - Partial update via PATCH, verifies unchanged fields preserved
+6. **Delete Pet** - Deletes the pet
+7. **Get Deleted Pet** - Confirms 404 after deletion
 
 This order ensures environment variables are populated correctly for dependent requests.
+
+
+## Running via Newman (CLI)
+
+You can run the collection from the command line using Newman:
+
+```bash
+# Install Newman and HTML reporter (one-time)
+npm install -g newman newman-reporter-htmlextra
+
+# Run collection
+newman run "backend/postman/Pet Tracker API.postman_collection.json" \
+  -e "backend/postman/Local Development.postman_environment.json"
+
+# Run with HTML report
+newman run "backend/postman/Pet Tracker API.postman_collection.json" \
+  -e "backend/postman/Local Development.postman_environment.json" \
+  --reporters cli,htmlextra \
+  --reporter-htmlextra-export newman-report.html
+```
+
+Newman also runs automatically in CI via the `api-tests.yml` GitHub Actions workflow. Results are available as workflow artifacts (JSON + HTML report) and in the GitHub Step Summary.
 
 
 ## Viewing Test Results
@@ -143,13 +135,6 @@ cd backend
 venv\Scripts\activate
 python manage.py runserver
 ```
-
-### Tests failing on "Get Pet by ID"
-
-**Cause**: `petId` environment variable not set
-
-**Solution**: Run "Create Pet" request first to populate the `petId` variable
-
 ### Database errors
 
 **Solution**: Ensure PostgreSQL is running via Docker

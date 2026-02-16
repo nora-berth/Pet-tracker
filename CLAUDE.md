@@ -70,6 +70,15 @@ npx playwright test                 # Run all E2E tests
 npx playwright test --headed        # Run with browser visible
 npx playwright test --debug         # Run in debug mode
 npx playwright show-report          # View HTML report
+
+# API tests (Postman/Newman)
+npm install -g newman newman-reporter-htmlextra  # Install Newman (one-time)
+newman run "backend/postman/Pet Tracker API.postman_collection.json" \
+  -e "backend/postman/Local Development.postman_environment.json"  # Run collection
+newman run "backend/postman/Pet Tracker API.postman_collection.json" \
+  -e "backend/postman/Local Development.postman_environment.json" \
+  --reporters cli,htmlextra \
+  --reporter-htmlextra-export newman-report.html  # Run with HTML report
 ```
 
 ## Architecture
@@ -103,6 +112,9 @@ npx playwright show-report          # View HTML report
 - **Backend tests**: `backend/pets/tests/`
   - `test_models.py` - model layer tests (Pet, WeightRecord, Vaccination, VetVisit)
   - `test_api.py` - API tests covering CRUD operations, validation, error handling
+- **API tests (Postman)**: `backend/postman/`
+  - `Pet Tracker API.postman_collection.json` - Postman collection with test scripts
+  - `Local Development.postman_environment.json` - Environment variables for local/CI
 - **Frontend unit tests**: `frontend/src/App.test.jsx`
 - **E2E tests**: `frontend/e2e/`
   - `pet-management.spec.js` - E2E user journey tests
@@ -112,6 +124,8 @@ npx playwright show-report          # View HTML report
 ### Test Reporting
 - **Allure Framework** is used for E2E tests only
 - E2E Allure reports are automatically generated in CI and deployed to GitHub Pages
+- **Newman htmlextra** generates HTML reports for Postman API tests in CI
+- Newman CI results are also shown in GitHub Step Summary
 - Backend and frontend unit tests report via native pytest and Vitest output
 
 ## Key File Relationships
