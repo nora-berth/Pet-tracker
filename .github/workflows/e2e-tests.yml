@@ -107,11 +107,10 @@ jobs:
       - name: Add report link to summary
         if: always()
         run: |
-          ARTIFACTS_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts"
           ALLURE_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
           echo "## Test Reports" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Playwright HTML report: [Download artifact]($ARTIFACTS_URL)" >> $GITHUB_STEP_SUMMARY
+          echo "- Playwright HTML report: download the \`playwright-report\` artifact from the artifacts section below" >> $GITHUB_STEP_SUMMARY
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
             echo "- Allure report (with history): [$ALLURE_URL]($ALLURE_URL) — available after deploy workflow completes" >> $GITHUB_STEP_SUMMARY
           fi
