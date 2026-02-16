@@ -4,8 +4,6 @@
 ![Backend Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/backend-tests.yml/badge.svg)
 ![Frontend Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/frontend-tests.yml/badge.svg)
 ![E2E Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/e2e-tests.yml/badge.svg)
-![Python](https://img.shields.io/badge/python-3.11-blue)
-![Node](https://img.shields.io/badge/node-20-green)
 
 
 A pet health management application including multi-layer test automation, CI/CD pipeline, and test reporting.
