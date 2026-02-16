@@ -63,20 +63,12 @@ npx playwright test --debug         # Debug mode
 npx playwright show-report          # View HTML report
 ```
 
-### Generate Allure Reports Locally
+### View E2E Allure Report Locally
 ```bash
-# Backend
-cd backend
-pytest --alluredir=allure-results
-allure serve allure-results
-
-# Frontend
-cd frontend
-npm test -- --run
-allure serve allure-results
-
-# E2E
+# Run E2E tests to generate results
 cd frontend
 npx playwright test
-allure serve allure-results
+
+# Serve Allure report (requires Allure CLI)
+allure serve allure-results-e2e
 ```
