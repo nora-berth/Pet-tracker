@@ -1,0 +1,17 @@
+{
+  "workspace": {
+    "id": "c4095adb-bc67-48ed-9846-b603b0b8d389"
+  },
+  "entities": {
+    "environments": [
+      "..\\Local Development.postman_environment.json"
+    ],
+    "flows": [],
+    "globals": [],
+    "mocks": [],
+    "specs": [],
+    "collections": [
+      "..\\Pet Tracker API.postman_collection.json"
+    ]
+  }
+}

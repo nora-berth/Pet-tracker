@@ -3,9 +3,7 @@
     "_postman_id": "a4e31a49-5d31-4a4c-b871-9e73ca4a2fe9",
     "name": "Pet Tracker API",
     "description": "StartFragment Comprehensive API tests for Pet Tracker applicationEndFragment",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "51213646",
-    "_collection_link": "https://go.postman.co/collection/51213646-a4e31a49-5d31-4a4c-b871-9e73ca4a2fe9?source=collection_link"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
@@ -41,6 +39,7 @@
           }
         }
       ],
+      "id": "551ceb9c-90b5-454b-bf3a-b06d0f71c7c6",
       "request": {
         "method": "GET",
         "header": [],
@@ -97,6 +96,7 @@
           }
         }
       ],
+      "id": "a3567219-0819-4116-bbd2-8252290980b4",
       "request": {
         "method": "POST",
         "header": [],
@@ -156,6 +156,300 @@
           }
         }
       ],
+      "id": "5969aca1-c715-4281-9b27-515e1b8d9c4b",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}{{apiPath}}/pets/{{petId}}/",
+          "host": [
+            "{{baseUrl}}{{apiPath}}"
+          ],
+          "path": [
+            "pets",
+            "{{petId}}",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Pet",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "id": "3fc7be83-e078-4300-b7cf-99eaa64719f0",
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "id": "5fd98a5e-1a73-42a8-9939-d057581b16a2",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response time is less than 500ms\", function () {\r",
+              "    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Pet name was updated\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.name).to.equal(\"Updated Pet\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Species changed to cat\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.species).to.equal(\"cat\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Breed changed to Siamese\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.breed).to.equal(\"Siamese\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Notes were updated\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.notes).to.equal(\"Updated via Postman\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"updated_at is different from created_at\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.updated_at).to.not.equal(jsonData.created_at);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Pet ID unchanged\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.id).to.equal(parseInt(pm.environment.get(\"petId\")));\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "id": "8ab1964b-8f0f-4e0c-b4a8-d0905a16f991",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Updated Pet\",\r\n  \"species\": \"cat\",\r\n  \"breed\": \"Siamese\",\r\n  \"birth_date\": \"2020-01-15\",\r\n  \"notes\": \"Updated via Postman\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}{{apiPath}}/pets/{{petId}}/",
+          "host": [
+            "{{baseUrl}}{{apiPath}}"
+          ],
+          "path": [
+            "pets",
+            "{{petId}}",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Partial Update Pet",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "id": "671766e0-d551-44ce-875a-d815e592d13e",
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "id": "812e4bbe-68f2-4a5a-b012-0359891980b8",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response time is less than 500ms\", function () {\r",
+              "    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Notes field was updated\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.notes).to.equal(\"Partially updated via Postman\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Name remains unchanged from PUT update\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.name).to.equal(\"Updated Pet\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Species remains unchanged from PUT update\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.species).to.equal(\"cat\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Breed remains unchanged from PUT update\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.breed).to.equal(\"Siamese\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Pet ID unchanged\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.id).to.equal(parseInt(pm.environment.get(\"petId\")));\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "id": "78fba53f-445c-4ffe-8887-f9855f0e48d9",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"notes\": \"Partially updated via Postman\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}{{apiPath}}/pets/{{petId}}/",
+          "host": [
+            "{{baseUrl}}{{apiPath}}"
+          ],
+          "path": [
+            "pets",
+            "{{petId}}",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Pet",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "id": "bd936fda-dd4e-435e-9ae9-c850b3aea6ea",
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "id": "7bdb8c41-6465-4123-8e50-19bf72bb8e4f",
+            "exec": [
+              "pm.test(\"Status code is 204 No Content\", function () {\r",
+              "    pm.response.to.have.status(204);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response time is less than 500ms\", function () {\r",
+              "    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response body is empty\", function () {\r",
+              "    pm.expect(pm.response.text()).to.be.empty;\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "id": "8a1d582f-2129-4e2a-a5c7-f39ed09dd897",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}{{apiPath}}/pets/{{petId}}/",
+          "host": [
+            "{{baseUrl}}{{apiPath}}"
+          ],
+          "path": [
+            "pets",
+            "{{petId}}",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Deleted Pet (404 verification)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "id": "1a331b3a-e628-49ce-afe8-7268d7c6252d",
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "id": "c9ecec9c-b87f-4249-8bbd-a4ee2ab665fe",
+            "exec": [
+              "pm.test(\"Status code is 404 Not Found\", function () {\r",
+              "    pm.response.to.have.status(404);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response time is less than 500ms\", function () {\r",
+              "    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Content-Type is application/json\", function () {\r",
+              "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+              "});\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "id": "97aa063c-18a0-47a8-922c-5a250e8f1748",
       "request": {
         "method": "GET",
         "header": [],
