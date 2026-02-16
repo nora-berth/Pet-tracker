@@ -56,41 +56,13 @@ jobs:
           DB_HOST: localhost
           DB_PORT: 5432
         run: |
-          pytest --cov=pets --cov-report=xml --cov-report=term --alluredir=allure-results
+          pytest --cov=pets --cov-report=xml --cov-report=term
 
       - name: Upload coverage to artifacts
         uses: actions/upload-artifact@v4
         with:
           name: backend-coverage
           path: backend/coverage.xml
-
-      - name: Set up Java (for Allure)
-        if: always()
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Generate Allure report
-        if: always()
-        run: bash scripts/generate-report.sh backend ${{ github.run_id }} ${{ github.sha }}
-        continue-on-error: true
-
-      - name: Upload Allure report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-report-backend-${{ github.run_id }}
-          path: allure-report-backend-${{ github.run_id }}/
-          retention-days: 7
-
-      - name: Upload Allure results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-results-backend
-          path: backend/allure-results/
-          retention-days: 7
 
       - name: Add report link to summary
         if: always()
