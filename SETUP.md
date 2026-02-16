@@ -51,7 +51,6 @@ pytest -k "test_pet_create"         # By test name
 ```bash
 cd frontend
 npm test           # Run tests
-npm test:ui        # Run with Vitest UI
 ```
 
 ### E2E Tests
