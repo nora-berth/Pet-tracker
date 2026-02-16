@@ -11,17 +11,6 @@ Still a work in progress. Check out the [SETUP.md](SETUP.md) guide for detailed 
 
 [E2E Allure Report](https://nora-berth.github.io/Pet-tracker/)
 
-### Pipeline Architecture
-
-```mermaid
-graph TB
-    A[Frontend Tests Workflow] -->|Vitest native output| A1[CI pass/fail status]
-    B[Backend Tests Workflow] -->|Pytest native output + coverage| B1[CI pass/fail status]
-    C[E2E Tests Workflow] --> C1[Playwright HTML Report artifact]
-    C[E2E Tests Workflow] --> C2[Allure Results artifact]
-    C2 -->|On main| D[Deploy Allure Report Workflow]
-```
-
 
 ## Tech Stack
 
