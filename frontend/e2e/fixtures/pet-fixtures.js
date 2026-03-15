@@ -1,24 +1,24 @@
-import { test as base } from '@playwright/test';
+import { test as authTest } from './auth-fixtures.js';
 import { createPetViaAPI, deletePetViaAPI } from '../helpers/api-helpers.js';
 
 /**
- * Automatically creates and cleans up a test pet
+ * Extends auth fixtures with testPet fixture
+ * Provides: testUser, authenticatedPage, testPet
  */
-export const test = base.extend({
-  testPet: async ({}, use) => {
-    // Setup
+export const test = authTest.extend({
+  testPet: async ({ testUser }, use) => {
+    // Setup: Create pet using testUser's token
     const pet = await createPetViaAPI({
       name: `TestPet_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
       species: 'dog',
       breed: 'Test Breed',
-    });
+    }, testUser.token);
 
-    // Provide pet to test
     await use(pet);
 
-    // Teardown
+    // Teardown: Delete using same user's token
     try {
-      await deletePetViaAPI(pet.id);
+      await deletePetViaAPI(pet.id, testUser.token);
     } catch (error) {
       console.log(`Cleanup failed for pet ${pet.id}:`, error.message);
     }
