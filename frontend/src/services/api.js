@@ -9,6 +9,46 @@ const api = axios.create({
   },
 });
 
+// Request interceptor: Add auth token to all requests
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      config.headers.Authorization = `Token ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor: Handle 401 errors (redirect to login)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Clear auth data
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('authUser');
+
+      // Redirect to login if not already there
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Authentication API
+export const authAPI = {
+  register: (data) => api.post('/auth/register/', data),
+  login: (data) => api.post('/auth/login/', data),
+  logout: () => api.post('/auth/logout/'),
+  getProfile: () => api.get('/auth/profile/'),
+};
+
 // Pet API
 export const petAPI = {
   getAll: () => api.get('/pets/'),
