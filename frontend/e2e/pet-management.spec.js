@@ -4,12 +4,12 @@ import * as allure from 'allure-js-commons';
 import { Severity } from 'allure-js-commons';
 
 test.describe('Pet Management', () => {
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ testUser }) => {
     await allure.epic('Pet Tracker');
-    await deleteAllPetsViaAPI();
+    await deleteAllPetsViaAPI(testUser.token);
   });
 
-  test('can view the home page', async ({ page }) => {
+  test('can view the home page', async ({ authenticatedPage: page }) => {
     await allure.feature('Pet Management');
     await allure.story('View Home Page');
     await allure.severity(Severity.CRITICAL);
@@ -22,7 +22,7 @@ test.describe('Pet Management', () => {
     await expect(page.getByRole('heading', { name: 'My Pets' })).toBeVisible();
   });
 
-  test('can add a new pet via UI', async ({ page }) => {
+  test('can add a new pet via UI', async ({ authenticatedPage: page }) => {
     await allure.feature('Pet Management');
     await allure.story('Add Pet via UI');
     await allure.severity(Severity.CRITICAL);
@@ -52,7 +52,7 @@ test.describe('Pet Management', () => {
     });
   });
 
-  test('can view pet details', async ({ page, testPet }) => {
+  test('can view pet details', async ({ authenticatedPage: page, testPet }) => {
     await allure.feature('Pet Management');
     await allure.story('View Pet Details');
     await allure.severity(Severity.CRITICAL);
@@ -74,7 +74,7 @@ test.describe('Pet Management', () => {
     });
   });
 
-  test('can add a weight record to pet', async ({ page, testPet }) => {
+  test('can add a weight record to pet', async ({ authenticatedPage: page, testPet }) => {
     await allure.feature('Health Records');
     await allure.story('Add Weight Record');
     await allure.severity(Severity.NORMAL);
@@ -105,7 +105,7 @@ test.describe('Pet Management', () => {
     });
   });
 
-  test('can delete a pet', async ({ page, testPet }) => {
+  test('can delete a pet', async ({ authenticatedPage: page, testPet }) => {
     await allure.feature('Pet Management');
     await allure.story('Delete Pet');
     await allure.severity(Severity.CRITICAL);
@@ -128,12 +128,12 @@ test.describe('Pet Management', () => {
 });
 
 test.describe('Complete User Journey (Happy Path)', () => {
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ testUser }) => {
     await allure.epic('Pet Tracker');
-    await deleteAllPetsViaAPI();
+    await deleteAllPetsViaAPI(testUser.token);
   });
 
-  test('complete pet management flow', async ({ page }) => {
+  test('complete pet management flow', async ({ authenticatedPage: page }) => {
     await allure.feature('End-to-End User Journey');
     await allure.story('Complete Pet Management Flow');
     await allure.severity(Severity.BLOCKER);
