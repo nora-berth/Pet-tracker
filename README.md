@@ -7,7 +7,7 @@
 ![API Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/api-tests.yml/badge.svg)
 
 
-A pet health management application including multi-layer test automation, CI/CD pipeline, and test reporting.
+A pet health management application, including multi-layer test automation, CI/CD pipeline, and test reporting.
 Still a work in progress. Check out the [SETUP.md](SETUP.md) guide for detailed installation and configuration instructions.
 
 
@@ -24,6 +24,7 @@ Still a work in progress. Check out the [SETUP.md](SETUP.md) guide for detailed 
 - **Backend**: Django + Django REST Framework
 - **Frontend**: React + Vite + React Router
 - **Database**: PostgreSQL (Docker)
+- **Authentication**: DRF Token Authentication
 - **API**: RESTful
 
 ### Testing & QA
@@ -48,12 +49,13 @@ pet-tracker/
 ├── backend/
 │   ├── config/
 │   ├── pets/
-│   │   ├── models.py
+│   │   ├── models.py 
 │   │   ├── views.py
 │   │   ├── serializers.py
 │   │   └── tests/
 │   │       ├── test_models.py
-│   │       └── test_api.py
+│   │       ├── test_api.py
+│   │       └── test_auth_api.py
 │   ├── postman/
 │   │   ├── Pet Tracker API.postman_collection.json
 │   │   ├── Local Development.postman_environment.json
@@ -64,15 +66,28 @@ pet-tracker/
 ├── frontend/
 │   ├── e2e/
 │   │   ├── pet-management.spec.js
+│   │   ├── auth.spec.js
 │   │   ├── fixtures/
-│   │   │   └── pet-fixtures.js
+│   │   │   ├── pet-fixtures.js
+│   │   │   └── auth-fixtures.js
 │   │   └── helpers/
 │   │       └── api-helpers.js
 │   ├── src/
 │   │   ├── App.test.jsx
 │   │   ├── components/
+│   │   │   ├── auth/
+│   │   │   │   ├── Login.jsx
+│   │   │   │   ├── Login.test.jsx
+│   │   │   │   ├── Signup.jsx
+│   │   │   │   ├── Signup.test.jsx
+│   │   │   │   └── ProtectedRoute.jsx
+│   │   │   └── layout/
+│   │   │       └── Navbar.jsx
+│   │   ├── contexts/
+│   │   │   └── AuthContext.jsx
 │   │   ├── pages/
 │   │   ├── services/
+│   │   │   └── api.js
 │   │   └── test/
 │   │       └── setup.js
 │   ├── playwright.config.js
