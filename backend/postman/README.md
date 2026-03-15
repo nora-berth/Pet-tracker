@@ -1,6 +1,6 @@
 # Pet Tracker API - Postman Test Suite
 
-This directory contains a comprehensive Postman collection for testing the Pet Tracker API. The collection includes automated tests for API endpoints with validation of responses, data integrity, and performance.
+This directory contains a comprehensive Postman collection for testing the Pet Tracker API. The collection includes automated tests for authentication, CRUD operations, and multi-tenancy with validation of responses, data integrity, and performance.
 
 
 ## Contents
@@ -55,6 +55,15 @@ docker-compose up -d
 3. View test results in the **Test Results** tab
 
 
+## Authentication
+
+The collection uses **Token Authentication**. A collection-level `Authorization: Token {{authToken}}` header is applied automatically to all requests that require authentication.
+
+- The **Register User** request generates a unique test user (timestamp-based) and stores the auth token
+- Public endpoints (register, login) override the collection auth with "No Auth"
+- The **Unauthenticated Access** test verifies that protected endpoints reject requests without a token
+
+
 ## Environment Variables
 
 The Local Development environment uses the following variables:
@@ -63,6 +72,10 @@ The Local Development environment uses the following variables:
 |----------|---------|----------------|
 | `baseUrl` | Base URL of the API server | No (set manually) |
 | `apiPath` | API path prefix | No (set manually) |
+| `authToken` | Auth token for authenticated requests | Yes (from Register/Login) |
+| `testUsername` | Generated test username | Yes (from Register pre-request) |
+| `testPassword` | Test user password | Yes (from Register pre-request) |
+| `testEmail` | Generated test email | Yes (from Register pre-request) |
 | `petId` | ID of created pet | Yes |
 | `weightRecordId` | ID of weight record | Yes |
 | `vaccinationId` | ID of vaccination record | Yes |
@@ -71,15 +84,27 @@ The Local Development environment uses the following variables:
 
 ## Test Execution Order
 
-For best results, run requests in this order:
+The collection is organized into folders that must run in order:
 
-1. **Get All Pets** - Verifies API is accessible and returns data
-2. **Create Pet** - Creates a test pet and stores its ID
-3. **Get Pet by ID** - Verifies the created pet can be retrieved
-4. **Update Pet** - Full update of all fields via PUT
-5. **Partial Update Pet** - Partial update via PATCH, verifies unchanged fields preserved
-6. **Delete Pet** - Deletes the pet
-7. **Get Deleted Pet** - Confirms 404 after deletion
+### 1. Authentication
+1. **Register User** - Creates a test user, stores auth token
+2. **Register Duplicate Username** - Verifies duplicate username rejection (400)
+3. **Login with Valid Credentials** - Logs in with test user, stores token
+4. **Login with Invalid Password** - Verifies invalid credentials rejection (400)
+5. **Get Profile** - Retrieves authenticated user profile
+6. **Unauthenticated Access** - Verifies 401 for requests without token
+
+### 2. Pets
+7. **Get All Pets** - Verifies API returns paginated data for authenticated user
+8. **Create Pet** - Creates a test pet, verifies owner assignment, stores pet ID
+9. **Get Pet by ID** - Retrieves pet with nested records, verifies owner
+10. **Update Pet** - Full update via PUT, verifies owner unchanged
+11. **Partial Update Pet** - Partial update via PATCH, verifies unchanged fields
+12. **Delete Pet** - Deletes the pet (204)
+13. **Get Deleted Pet** - Confirms 404 after deletion
+
+### 3. Cleanup
+14. **Logout** - Deletes auth token, cleans up environment variables
 
 This order ensures environment variables are populated correctly for dependent requests.
 
