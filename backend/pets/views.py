@@ -9,7 +9,9 @@ from .serializers import (
     VaccinationSerializer, VetVisitSerializer, RegisterSerializer,
     LoginSerializer, UserSerializer
 )
+import logging
 
+logger = logging.getLogger(__name__)
 
 # Authentication Views
 
@@ -75,8 +77,9 @@ def logout(request):
             status=status.HTTP_200_OK
         )
     except Exception as e:
+        logger.exception("Error while logging out user %s", request.user)
         return Response(
-            {'error': str(e)},
+            {'error': 'An internal error occurred while logging out.'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
