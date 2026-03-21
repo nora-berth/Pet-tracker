@@ -6,10 +6,16 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.db.models import Q
 from .models import Pet, WeightRecord, Vaccination, VetVisit, PetShare
 from .serializers import (
-      PetSerializer, PetListSerializer, WeightRecordSerializer,
-      VaccinationSerializer, VetVisitSerializer, RegisterSerializer,
-      LoginSerializer, UserSerializer, PetShareSerializer
-  )
+    PetSerializer,
+    PetListSerializer,
+    WeightRecordSerializer,
+    VaccinationSerializer,
+    VetVisitSerializer,
+    RegisterSerializer,
+    LoginSerializer,
+    UserSerializer,
+    PetShareSerializer,
+)
 from .permissions import PetAccessPermission, IsShareOwner
 import logging
 
@@ -17,7 +23,8 @@ logger = logging.getLogger(__name__)
 
 # Authentication Views
 
-@api_view(['POST'])
+
+@api_view(["POST"])
 @permission_classes([AllowAny])
 def register(request):
     """
@@ -32,14 +39,14 @@ def register(request):
         user = serializer.save()
         token, created = Token.objects.get_or_create(user=user)
         user_serializer = UserSerializer(user)
-        return Response({
-            'token': token.key,
-            'user': user_serializer.data
-        }, status=status.HTTP_201_CREATED)
+        return Response(
+            {"token": token.key, "user": user_serializer.data},
+            status=status.HTTP_201_CREATED,
+        )
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([AllowAny])
 def login(request):
     """
@@ -51,17 +58,17 @@ def login(request):
     """
     serializer = LoginSerializer(data=request.data)
     if serializer.is_valid():
-        user = serializer.validated_data['user']
+        user = serializer.validated_data["user"]
         token, created = Token.objects.get_or_create(user=user)
         user_serializer = UserSerializer(user)
-        return Response({
-            'token': token.key,
-            'user': user_serializer.data
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {"token": token.key, "user": user_serializer.data},
+            status=status.HTTP_200_OK,
+        )
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def logout(request):
     """
@@ -75,18 +82,17 @@ def logout(request):
         # Delete the user's token
         request.user.auth_token.delete()
         return Response(
-            {'message': 'Logged out successfully'},
-            status=status.HTTP_200_OK
+            {"message": "Logged out successfully"}, status=status.HTTP_200_OK
         )
     except Exception as e:
         logger.exception("Error while logging out user %s", request.user)
         return Response(
-            {'error': 'An internal error occurred while logging out.'},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            {"error": "An internal error occurred while logging out."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def profile(request):
     """
@@ -102,45 +108,47 @@ def profile(request):
 
 # Pet Management ViewSets
 
+
 class PetViewSet(viewsets.ModelViewSet):
     queryset = Pet.objects.all()
 
     def get_serializer_class(self):
-        if self.action == 'list':
+        if self.action == "list":
             return PetListSerializer
-        if self.action in ('share', 'shared_with'):
+        if self.action in ("share", "shared_with"):
             return PetShareSerializer
         return PetSerializer
 
     def get_queryset(self):
         user = self.request.user
-        return Pet.objects.filter(
-            Q(owner=user) | Q(shares__shared_with=user)
-        ).distinct().prefetch_related('shares__shared_with')
+        return (
+            Pet.objects.filter(Q(owner=user) | Q(shares__shared_with=user))
+            .distinct()
+            .prefetch_related("shares__shared_with")
+        )
 
     def get_permissions(self):
-        if self.action in ('share', 'unshare', 'shared_with'):
+        if self.action in ("share", "unshare", "shared_with"):
             return [IsAuthenticated(), IsShareOwner()]
-        if self.action == 'create':
+        if self.action == "create":
             return [IsAuthenticated()]
         return [IsAuthenticated(), PetAccessPermission()]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-    @action(detail=True, methods=['post'], url_path='share')
+    @action(detail=True, methods=["post"], url_path="share")
     def share(self, request, pk=None):
         """Share a pet with another user. POST /api/pets/{id}/share/"""
         pet = self.get_object()
         serializer = PetShareSerializer(
-            data=request.data,
-            context={'request': request, 'pet': pet}
+            data=request.data, context={"request": request, "pet": pet}
         )
         serializer.is_valid(raise_exception=True)
         serializer.save(pet=pet)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=['delete'], url_path=r'share/(?P<share_id>[^/.]+)')
+    @action(detail=True, methods=["delete"], url_path=r"share/(?P<share_id>[^/.]+)")
     def unshare(self, request, pk=None, share_id=None):
         """Remove sharing. DELETE /api/pets/{id}/share/{share_id}/"""
         pet = self.get_object()
@@ -150,11 +158,10 @@ class PetViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except PetShare.DoesNotExist:
             return Response(
-                {'detail': 'Share not found.'},
-                status=status.HTTP_404_NOT_FOUND
+                {"detail": "Share not found."}, status=status.HTTP_404_NOT_FOUND
             )
 
-    @action(detail=True, methods=['get'], url_path='shared-with')
+    @action(detail=True, methods=["get"], url_path="shared-with")
     def shared_with(self, request, pk=None):
         """List users this pet is shared with. GET /api/pets/{id}/shared-with/"""
         pet = self.get_object()
@@ -173,10 +180,27 @@ class WeightRecordViewSet(viewsets.ModelViewSet):
         queryset = WeightRecord.objects.filter(
             Q(pet__owner=user) | Q(pet__shares__shared_with=user)
         ).distinct()
-        pet_id = self.request.query_params.get('pet', None)
+        pet_id = self.request.query_params.get("pet", None)
         if pet_id is not None:
             queryset = queryset.filter(pet_id=pet_id)
         return queryset
+
+    def perform_create(self, serializer):
+        pet = serializer.validated_data["pet"]
+        user = self.request.user
+        # Owner can always create
+        if pet.owner == user:
+            serializer.save()
+            return
+        # Check share role
+        share = PetShare.objects.filter(pet=pet, shared_with=user).first()
+        if share and share.role == "editor":
+            serializer.save()
+            return
+        # Viewer or no share — deny
+        from rest_framework.exceptions import PermissionDenied
+
+        raise PermissionDenied("You do not have permission to add records to this pet.")
 
 
 class VaccinationViewSet(viewsets.ModelViewSet):
@@ -189,10 +213,27 @@ class VaccinationViewSet(viewsets.ModelViewSet):
         queryset = Vaccination.objects.filter(
             Q(pet__owner=user) | Q(pet__shares__shared_with=user)
         ).distinct()
-        pet_id = self.request.query_params.get('pet', None)
+        pet_id = self.request.query_params.get("pet", None)
         if pet_id is not None:
             queryset = queryset.filter(pet_id=pet_id)
         return queryset
+
+    def perform_create(self, serializer):
+        pet = serializer.validated_data["pet"]
+        user = self.request.user
+        # Owner can always create
+        if pet.owner == user:
+            serializer.save()
+            return
+        # Check share role
+        share = PetShare.objects.filter(pet=pet, shared_with=user).first()
+        if share and share.role == "editor":
+            serializer.save()
+            return
+        # Viewer or no share — deny
+        from rest_framework.exceptions import PermissionDenied
+
+        raise PermissionDenied("You do not have permission to add records to this pet.")
 
 
 class VetVisitViewSet(viewsets.ModelViewSet):
@@ -205,7 +246,24 @@ class VetVisitViewSet(viewsets.ModelViewSet):
         queryset = VetVisit.objects.filter(
             Q(pet__owner=user) | Q(pet__shares__shared_with=user)
         ).distinct()
-        pet_id = self.request.query_params.get('pet', None)
+        pet_id = self.request.query_params.get("pet", None)
         if pet_id is not None:
             queryset = queryset.filter(pet_id=pet_id)
         return queryset
+
+    def perform_create(self, serializer):
+        pet = serializer.validated_data["pet"]
+        user = self.request.user
+        # Owner can always create
+        if pet.owner == user:
+            serializer.save()
+            return
+        # Check share role
+        share = PetShare.objects.filter(pet=pet, shared_with=user).first()
+        if share and share.role == "editor":
+            serializer.save()
+            return
+        # Viewer or no share — deny
+        from rest_framework.exceptions import PermissionDenied
+
+        raise PermissionDenied("You do not have permission to add records to this pet.")
