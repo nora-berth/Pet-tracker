@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
 from decimal import Decimal
 
 
@@ -95,3 +96,25 @@ class VetVisit(models.Model):
     
     def __str__(self):
         return f"{self.pet.name} - {self.reason} on {self.date}"
+
+class PetShare(models.Model):
+    ROLE_CHOICES = [
+        ('viewer', 'Viewer'),
+        ('editor', 'Editor'),
+    ]
+
+    pet = models.ForeignKey(Pet, on_delete=models.CASCADE, related_name='shares')
+    shared_with = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shared_pets')
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='viewer')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['pet', 'shared_with']
+        ordering = ['created_at']
+
+    def clean(self):
+        if self.pet.owner == self.shared_with:
+            raise ValidationError("Cannot share a pet with its owner.")
+
+    def __str__(self):
+        return f"{self.pet.name} shared with {self.shared_with.username} ({self.role})"
