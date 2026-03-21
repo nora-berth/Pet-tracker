@@ -17,12 +17,13 @@ const renderWithRouter = (petId = '1') => {
 describe('PetDetail Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(api.sharingAPI, 'getSharedWith').mockResolvedValue({ data: [] });
   });
 
   it('shows loading state initially', () => {
     // Arrange
     vi.spyOn(api.petAPI, 'getOne').mockImplementation(
-      () => new Promise(() => {})
+      () => new Promise(() => { })
     );
 
     // Act
@@ -133,6 +134,7 @@ describe('PetDetail Component', () => {
       id: 1,
       name: 'Buddy',
       species: 'dog',
+      user_role: 'owner',
       weight_records: [],
       vaccinations: [],
       vet_visits: [],

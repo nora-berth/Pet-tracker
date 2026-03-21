@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { petAPI, weightAPI, vaccinationAPI, vetVisitAPI } from '../../services/api';
+import { petAPI, weightAPI, vaccinationAPI, vetVisitAPI, sharingAPI } from '../../services/api';
 import './PetDetail.css';
 
 
@@ -10,9 +10,14 @@ function PetDetail() {
     const [pet, setPet] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [sharedUsers, setSharedUsers] = useState([]);
+    const [shareInput, setShareInput] = useState('');
+    const [shareRole, setShareRole] = useState('viewer');
+    const [shareError, setShareError] = useState('');
 
     useEffect(() => {
         fetchPet();
+        fetchSharedUsers();
     }, [id]);
 
     const fetchPet = async () => {
@@ -26,6 +31,45 @@ function PetDetail() {
             console.error('Error fetching pet:', err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchSharedUsers = async () => {
+        try {
+            const response = await sharingAPI.getSharedWith(id);
+            setSharedUsers(response.data);
+        } catch (err) {
+            console.error('Error fetching shared users:', err);
+        }
+    };
+
+    const handleShare = async () => {
+        if (!shareInput.trim()) return;
+        try {
+            setShareError('');
+            await sharingAPI.share(id, {
+                user_identifier: shareInput.trim(),
+                role: shareRole,
+            });
+            setShareInput('');
+            setShareRole('viewer');
+            fetchSharedUsers();
+        } catch (err) {
+            const errorData = err.response?.data;
+            if (errorData?.user_identifier) {
+                setShareError(errorData.user_identifier[0] || errorData.user_identifier);
+            } else {
+                setShareError('Failed to share pet.');
+            }
+        }
+    };
+
+    const handleUnshare = async (shareId) => {
+        try {
+            await sharingAPI.unshare(id, shareId);
+            fetchSharedUsers();
+        } catch (err) {
+            console.error('Error removing share:', err);
         }
     };
 
@@ -81,6 +125,9 @@ function PetDetail() {
         }
     };
 
+    const isOwner = pet && pet.user_role === 'owner';
+    const canEditRecords = pet && (pet.user_role === 'owner' || pet.user_role === 'editor');
+
     if (loading) return <div className="loading">Loading pet details...</div>;
     if (error) return <div className="error">{error}</div>;
     if (!pet) return <div className="error">Pet not found</div>;
@@ -114,33 +161,81 @@ function PetDetail() {
                             <p>{pet.notes}</p>
                         </div>
                     )}
-                    <div className="pet-actions">
-                        <button
-                            onClick={() => navigate(`/pets/${id}/edit`)}
-                            className="edit-pet-button"
-                        >
-                            Edit Pet
-                        </button>
-                        <button
-                            onClick={handleDeletePet}
-                            className="delete-pet-button"
-                        >
-                            Delete Pet
-                        </button>
-                    </div>
+                    {isOwner && (
+                        <div className="pet-actions">
+                            <button
+                                onClick={() => navigate(`/pets/${id}/edit`)}
+                                className="edit-pet-button"
+                            >
+                                Edit Pet
+                            </button>
+                            <button
+                                onClick={handleDeletePet}
+                                className="delete-pet-button"
+                            >
+                                Delete Pet
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
+
+            {isOwner && (
+                <div className="sharing-section">
+                    <h2>Sharing</h2>
+                    <div className="share-form">
+                        <input
+                            type="text"
+                            placeholder="Username or email"
+                            value={shareInput}
+                            onChange={(e) => setShareInput(e.target.value)}
+                            aria-label="Username or email to share with"
+                        />
+                        <select
+                            value={shareRole}
+                            onChange={(e) => setShareRole(e.target.value)}
+                            aria-label="Share role"
+                        >
+                            <option value="viewer">Viewer</option>
+                            <option value="editor">Editor</option>
+                        </select>
+                        <button onClick={handleShare} className="share-button">
+                            Share
+                        </button>
+                    </div>
+                    {shareError && <p className="share-error">{shareError}</p>}
+                    {sharedUsers.length > 0 && (
+                        <ul className="shared-users-list">
+                            {sharedUsers.map(share => (
+                                <li key={share.id}>
+                                    <span>{share.shared_with_username}</span>
+                                    <span className="share-role-badge">{share.role}</span>
+                                    <button
+                                        onClick={() => handleUnshare(share.id)}
+                                        className="unshare-button"
+                                        aria-label={`Remove ${share.shared_with_username}`}
+                                    >
+                                        Remove
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            )}
 
             <div className="records-section">
                 <div className="record-card">
                     <div className="record-header">
                         <h2>Weight Records</h2>
-                        <button
-                            onClick={() => navigate(`/pets/${id}/add-weight`)}
-                            className="add-record-button"
-                        >
-                            + Add
-                        </button>
+                        {canEditRecords && (
+                            <button
+                                onClick={() => navigate(`/pets/${id}/add-weight`)}
+                                className="add-record-button"
+                            >
+                                + Add
+                            </button>
+                        )}
                     </div>
                     {pet.weight_records && pet.weight_records.length > 0 ? (
                         <ul>
@@ -151,13 +246,15 @@ function PetDetail() {
                                             <strong>{new Date(record.date).toLocaleDateString()}</strong>: {record.weight}{record.unit}
                                             {record.notes && <span className="record-notes"> - {record.notes}</span>}
                                         </div>
-                                        <button
-                                            onClick={() => handleDeleteWeight(record.id)}
-                                            className="delete-button"
-                                            title="Delete"
-                                        >
-                                            🗑️
-                                        </button>
+                                        {canEditRecords && (
+                                            <button
+                                                onClick={() => handleDeleteWeight(record.id)}
+                                                className="delete-button"
+                                                title="Delete"
+                                            >
+                                                🗑️
+                                            </button>
+                                        )}
                                     </div>
                                 </li>
                             ))}
@@ -170,12 +267,14 @@ function PetDetail() {
                 <div className="record-card">
                     <div className="record-header">
                         <h2>Vaccinations</h2>
-                        <button
-                            onClick={() => navigate(`/pets/${id}/add-vaccination`)}
-                            className="add-record-button"
-                        >
-                            + Add
-                        </button>
+                        {canEditRecords && (
+                            <button
+                                onClick={() => navigate(`/pets/${id}/add-vaccination`)}
+                                className="add-record-button"
+                            >
+                                + Add
+                            </button>
+                        )}
                     </div>
                     {pet.vaccinations && pet.vaccinations.length > 0 ? (
                         <ul>
@@ -189,13 +288,15 @@ function PetDetail() {
                                             )}
                                             {vac.veterinarian && <span> - Dr. {vac.veterinarian}</span>}
                                         </div>
-                                        <button
-                                            onClick={() => handleDeleteVaccination(vac.id)}
-                                            className="delete-button"
-                                            title="Delete"
-                                        >
-                                            🗑️
-                                        </button>
+                                        {canEditRecords && (
+                                            <button
+                                                onClick={() => handleDeleteVaccination(vac.id)}
+                                                className="delete-button"
+                                                title="Delete"
+                                            >
+                                                🗑️
+                                            </button>
+                                        )}
                                     </div>
                                 </li>
                             ))}
@@ -208,12 +309,14 @@ function PetDetail() {
                 <div className="record-card">
                     <div className="record-header">
                         <h2>Vet Visits</h2>
-                        <button
-                            onClick={() => navigate(`/pets/${id}/add-vet-visit`)}
-                            className="add-record-button"
-                        >
-                            + Add
-                        </button>
+                        {canEditRecords && (
+                            <button
+                                onClick={() => navigate(`/pets/${id}/add-vet-visit`)}
+                                className="add-record-button"
+                            >
+                                + Add
+                            </button>
+                        )}
                     </div>
                     {pet.vet_visits && pet.vet_visits.length > 0 ? (
                         <ul>
@@ -226,13 +329,15 @@ function PetDetail() {
                                             {visit.cost && <span className="cost"> (${visit.cost})</span>}
                                             {visit.notes && <p className="record-notes">{visit.notes}</p>}
                                         </div>
-                                        <button
-                                            onClick={() => handleDeleteVetVisit(visit.id)}
-                                            className="delete-button"
-                                            title="Delete"
-                                        >
-                                            🗑️
-                                        </button>
+                                        {canEditRecords && (
+                                            <button
+                                                onClick={() => handleDeleteVetVisit(visit.id)}
+                                                className="delete-button"
+                                                title="Delete"
+                                            >
+                                                🗑️
+                                            </button>
+                                        )}
                                     </div>
                                 </li>
                             ))}
