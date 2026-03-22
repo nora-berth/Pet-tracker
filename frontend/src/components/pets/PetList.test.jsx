@@ -12,7 +12,7 @@ describe('PetList Component', () => {
   it('shows loading state initially', () => {
     // Arrange
     vi.spyOn(api.petAPI, 'getAll').mockImplementation(
-      () => new Promise(() => {})
+      () => new Promise(() => { })
     );
 
     // Act
@@ -133,5 +133,53 @@ describe('PetList Component', () => {
     // Assert
     const petCard = screen.getByText('Buddy').closest('.pet-card');
     expect(petCard).toHaveStyle({ cursor: 'pointer' });
+  });
+
+  it('shows shared badge on shared pets', async () => {
+    // Arrange
+    const mockPets = {
+      count: 1,
+      results: [
+        { id: 1, name: 'SharedPet', species: 'dog', is_shared: true, user_role: 'viewer', owner_username: 'otheruser' },
+      ],
+    };
+    vi.spyOn(api.petAPI, 'getAll').mockResolvedValue({ data: mockPets });
+
+    // Act
+    render(
+      <BrowserRouter>
+        <PetList />
+      </BrowserRouter>
+    );
+
+    // Assert
+    await waitFor(() => {
+      expect(screen.getByText('Shared')).toBeInTheDocument();
+      expect(screen.getByText(/owner: otheruser/i)).toBeInTheDocument();
+    });
+  });
+
+  it('does not show shared badge on owned pets', async () => {
+    // Arrange
+    const mockPets = {
+      count: 1,
+      results: [
+        { id: 1, name: 'MyPet', species: 'dog', is_shared: false, user_role: 'owner', owner_username: 'testuser' },
+      ],
+    };
+    vi.spyOn(api.petAPI, 'getAll').mockResolvedValue({ data: mockPets });
+
+    // Act
+    render(
+      <BrowserRouter>
+        <PetList />
+      </BrowserRouter>
+    );
+
+    // Assert
+    await waitFor(() => {
+      expect(screen.getByText('MyPet')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('Shared')).not.toBeInTheDocument();
   });
 });

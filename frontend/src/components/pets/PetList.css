@@ -132,7 +132,7 @@
 }
 
 /* ===== Empty & Status States ===== */
-.pet-list > p {
+.pet-list>p {
   text-align: center;
   color: var(--color-text-muted);
   font-size: var(--text-lg);
@@ -154,4 +154,24 @@
 
 .error {
   color: var(--color-danger);
+}
+
+.shared-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #2563eb;
+  background: #eff6ff;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  margin: 4px 0;
+}
+
+.pet-owner {
+  color: #6b7280;
+  font-size: 0.75rem;
+  margin-top: 2px;
+  font-style: italic;
 }

@@ -1,6 +1,5 @@
 from django.contrib import admin
-from django.contrib import admin
-from .models import Pet, WeightRecord, Vaccination, VetVisit
+from .models import Pet, WeightRecord, Vaccination, VetVisit, PetShare
 
 
 @admin.register(Pet)
@@ -29,3 +28,9 @@ class VetVisitAdmin(admin.ModelAdmin):
     list_display = ['pet', 'reason', 'date', 'veterinarian', 'cost']
     list_filter = ['pet', 'date']
     date_hierarchy = 'date'
+
+@admin.register(PetShare)
+class PetShareAdmin(admin.ModelAdmin):
+    list_display = ['pet', 'shared_with', 'role', 'created_at']
+    list_filter = ['role', 'created_at']
+    search_fields = ['pet__name', 'shared_with__username']

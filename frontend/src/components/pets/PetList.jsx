@@ -57,6 +57,12 @@ function PetList() {
                                 />
                             )}
                             <h3>{pet.name}</h3>
+                            {pet.is_shared && (
+                                <span className="shared-badge">Shared</span>
+                            )}
+                            {pet.is_shared && (
+                                <p className="pet-owner">Owner: {pet.owner_username}</p>
+                            )}
                             <p className="pet-species">{pet.species}</p>
                             {pet.breed && <p className="pet-breed">{pet.breed}</p>}
                             {pet.birth_date && (

@@ -91,4 +91,10 @@ export const vetVisitAPI = {
   delete: (id) => api.delete(`/vet-visits/${id}/`),
 };
 
+export const sharingAPI = {
+  getSharedWith: (petId) => api.get(`/pets/${petId}/shared-with/`),
+  share: (petId, data) => api.post(`/pets/${petId}/share/`, data),
+  unshare: (petId, shareId) => api.delete(`/pets/${petId}/share/${shareId}/`),
+};
+
 export default api;
