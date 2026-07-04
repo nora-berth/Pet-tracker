@@ -1,5 +1,5 @@
-import { test, expect } from './fixtures/pet-fixtures.js';
-import { createPetViaAPI, deleteAllPetsViaAPI } from './helpers/api-helpers.js';
+import { test, expect } from '../fixtures/pet-fixtures.js';
+import { createPetViaAPI, deleteAllPetsViaAPI } from '../helpers/api-helpers.js';
 import * as allure from 'allure-js-commons';
 import { Severity } from 'allure-js-commons';
 

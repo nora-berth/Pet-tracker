@@ -1,10 +1,7 @@
 # Pet Tracker - My app + QA Project
 
 [![codecov](https://codecov.io/gh/nora-berth/pet-tracker/graph/badge.svg)](https://codecov.io/gh/nora-berth/pet-tracker)
-![Backend Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/backend-tests.yml/badge.svg)
-![Frontend Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/frontend-tests.yml/badge.svg)
-![E2E Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/e2e-tests.yml/badge.svg)
-![API Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/api-tests.yml/badge.svg)
+![Build & Test](https://github.com/nora-berth/pet-tracker/actions/workflows/build-and-test.yml/badge.svg)
 
 
 A pet health management application, including multi-layer test automation, CI/CD pipeline, and test reporting.
@@ -45,11 +42,12 @@ pet-tracker/
 │   ├── backend-tests.yml
 │   ├── e2e-tests.yml
 │   ├── api-tests.yml
+│   ├── build-and-test.yml
 │   └── deploy-allure-pages.yml
 ├── backend/
 │   ├── config/
 │   ├── pets/
-│   │   ├── models.py 
+│   │   ├── models.py
 │   │   ├── views.py
 │   │   ├── serializers.py
 │   │   └── tests/
@@ -63,15 +61,18 @@ pet-tracker/
 │   ├── pytest.ini
 │   ├── requirements.txt
 │   └── manage.py
-├── frontend/
-│   ├── e2e/
+├── e2e/
+│   ├── package.json
+│   ├── playwright.config.js
+│   ├── tests/
 │   │   ├── pet-management.spec.js
-│   │   ├── auth.spec.js
-│   │   ├── fixtures/
-│   │   │   ├── pet-fixtures.js
-│   │   │   └── auth-fixtures.js
-│   │   └── helpers/
-│   │       └── api-helpers.js
+│   │   └── auth.spec.js
+│   ├── fixtures/
+│   │   ├── pet-fixtures.js
+│   │   └── auth-fixtures.js
+│   └── helpers/
+│       └── api-helpers.js
+├── frontend/
 │   ├── src/
 │   │   ├── App.test.jsx
 │   │   ├── components/
@@ -90,7 +91,6 @@ pet-tracker/
 │   │   │   └── api.js
 │   │   └── test/
 │   │       └── setup.js
-│   ├── playwright.config.js
 │   ├── vite.config.js
 │   └── package.json
 ├── docker-compose.yml
