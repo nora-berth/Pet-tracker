@@ -55,7 +55,7 @@ test.describe('Authentication Flow', () => {
       await expect(page).toHaveURL('/', { timeout: 5000 });
 
       await expect(page.getByText(`Welcome, ${testUser.username}`)).toBeVisible();
-      
+
       await expect(page.getByRole('button', { name: /logout/i })).toBeVisible();
     });
   });

@@ -55,7 +55,7 @@ npm test           # Run tests
 
 ### E2E Tests
 ```bash
-cd frontend
+cd e2e
 npx playwright test                 # Run all E2E tests
 npx playwright test --headed        # With browser visible
 npx playwright test --debug         # Debug mode
@@ -65,7 +65,7 @@ npx playwright show-report          # View HTML report
 ### View E2E Allure Report Locally
 ```bash
 # Run E2E tests to generate results
-cd frontend
+cd e2e
 npx playwright test
 
 # Serve Allure report (requires Allure CLI)

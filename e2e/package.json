@@ -1,0 +1,12 @@
+{
+  "name": "pet-tracker-e2e",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "allure-commandline": "^2.36.0",
+    "allure-js-commons": "^3.4.4",
+    "allure-playwright": "^3.4.4"
+  }
+}

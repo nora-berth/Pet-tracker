@@ -48,6 +48,8 @@ htmlcov/
 allure-results/
 allure-results-e2e/
 allure-report/
+playwright-report/
+test-results/
 
 # Environment
 *.env
