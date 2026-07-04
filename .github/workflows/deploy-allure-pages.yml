@@ -2,7 +2,7 @@ name: Deploy E2E Allure Report to GitHub Pages
 
 on:
   workflow_run:
-    workflows: ["E2E Tests"]
+    workflows: ["Build & Test"]
     types:
       - completed
     branches: [main]
@@ -45,7 +45,7 @@ jobs:
               const runs = await github.rest.actions.listWorkflowRuns({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                workflow_id: 'e2e-tests.yml',
+                workflow_id: 'build-and-test.yml',
                 branch: 'main',
                 per_page: 1,
               });
