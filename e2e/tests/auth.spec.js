@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/auth-fixtures.js';
 import { allure } from 'allure-playwright';
 
 test.describe('Authentication Flow', () => {
@@ -83,7 +83,7 @@ test.describe('Authentication Flow', () => {
     });
   });
 
-  test('allows user to login with valid credentials', async ({ page }) => {
+  test('allows user to login with valid credentials', async ({ page, testUser }) => {
     await allure.severity('blocker');
     await allure.description('Test user login with valid credentials');
 
@@ -93,8 +93,8 @@ test.describe('Authentication Flow', () => {
     });
 
     await test.step('Fill in login form', async () => {
-      await page.getByLabel('Username').fill('testuser');
-      await page.getByLabel('Password').fill('testpass123');
+      await page.getByLabel('Username').fill(testUser.username);
+      await page.getByLabel('Password').fill(testUser.password);
     });
 
     await test.step('Submit login form', async () => {
@@ -104,7 +104,7 @@ test.describe('Authentication Flow', () => {
     await test.step('Verify successful login', async () => {
       await expect(page).toHaveURL('/', { timeout: 5000 });
 
-      await expect(page.getByText('Welcome, testuser')).toBeVisible();
+      await expect(page.getByText(`Welcome, ${testUser.username}`)).toBeVisible();
 
       await expect(page.getByRole('button', { name: /logout/i })).toBeVisible();
     });
@@ -133,14 +133,14 @@ test.describe('Authentication Flow', () => {
     });
   });
 
-  test('allows user to logout', async ({ page }) => {
+  test('allows user to logout', async ({ page, testUser }) => {
     await allure.severity('blocker');
     await allure.description('Test user logout functionality');
 
     await test.step('Login first', async () => {
       await page.goto('/login');
-      await page.getByLabel('Username').fill('testuser');
-      await page.getByLabel('Password').fill('testpass123');
+      await page.getByLabel('Username').fill(testUser.username);
+      await page.getByLabel('Password').fill(testUser.password);
       await page.getByRole('button', { name: /login/i }).click();
       await expect(page).toHaveURL('/');
     });
@@ -160,14 +160,14 @@ test.describe('Authentication Flow', () => {
     });
   });
 
-  test('persists authentication across page refreshes', async ({ page }) => {
+  test('persists authentication across page refreshes', async ({ page, testUser }) => {
     await allure.severity('critical');
     await allure.description('Test that authentication persists after page refresh');
 
     await test.step('Login', async () => {
       await page.goto('/login');
-      await page.getByLabel('Username').fill('testuser');
-      await page.getByLabel('Password').fill('testpass123');
+      await page.getByLabel('Username').fill(testUser.username);
+      await page.getByLabel('Password').fill(testUser.password);
       await page.getByRole('button', { name: /login/i }).click();
       await expect(page).toHaveURL('/');
     });
@@ -178,7 +178,7 @@ test.describe('Authentication Flow', () => {
 
     await test.step('Verify user is still authenticated', async () => {
       await expect(page).toHaveURL('/');
-      await expect(page.getByText('Welcome, testuser')).toBeVisible();
+      await expect(page.getByText(`Welcome, ${testUser.username}`)).toBeVisible();
       await expect(page.getByRole('button', { name: /logout/i })).toBeVisible();
     });
   });
