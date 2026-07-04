@@ -77,7 +77,7 @@ test.describe('Authentication Flow', () => {
     });
 
     await test.step('Verify validation error is displayed', async () => {
-      await expect(page.getByText(/password/i)).toBeVisible();
+      await expect(page.getByText('Passwords do not match.')).toBeVisible();
     });
   });
 
@@ -239,8 +239,8 @@ test.describe('Multi-Tenancy', () => {
     });
 
     await test.step('Create pet as user 1', async () => {
-      await page.getByRole('link', { name: /add new pet/i }).click();
-      await page.getByLabel(/pet name/i).fill('User1 Pet');
+      await page.getByRole('button', { name: 'Add Pet' }).click();
+      await page.getByRole('textbox', { name: 'Name' }).fill('User1 Pet');
       await page.getByLabel(/species/i).selectOption('dog');
       await page.getByRole('button', { name: /add pet/i }).click();
       await expect(page.getByText('User1 Pet')).toBeVisible();
@@ -264,12 +264,12 @@ test.describe('Multi-Tenancy', () => {
     await test.step('Verify user 2 cannot see user 1 pet', async () => {
       // User 2 should see empty pet list
       await expect(page.getByText('User1 Pet')).not.toBeVisible();
-      await expect(page.getByText(/no pets found/i)).toBeVisible();
+      await expect(page.getByText(/No pets yet/i)).toBeVisible();
     });
 
     await test.step('Create pet as user 2', async () => {
-      await page.getByRole('link', { name: /add new pet/i }).click();
-      await page.getByLabel(/pet name/i).fill('User2 Pet');
+      await page.getByRole('button', { name: 'Add Pet' }).click();
+      await page.getByRole('textbox', { name: 'Name' }).fill('User2 Pet');
       await page.getByLabel(/species/i).selectOption('cat');
       await page.getByRole('button', { name: /add pet/i }).click();
       await expect(page.getByText('User2 Pet')).toBeVisible();
