@@ -10,9 +10,13 @@ Still a work in progress. Check out the [SETUP.md](SETUP.md) guide for detailed 
 
 ## CI/CD Pipeline
 
-[Pipeline](https://github.com/nora-berth/Pet-tracker/actions)
+On every push and PR to `main`, four test layers run in parallel:
 
-[E2E Allure Report](https://nora-berth.github.io/Pet-tracker/)
+- **Backend** (pytest) | **Frontend** (Vitest) | **E2E** (Playwright) | **API** (Newman)
+
+The **Build & Test** gate job requires all four to pass before the pipeline is green. After a successful `main` build, a separate workflow generates and deploys E2E Allure reports to GitHub Pages with trend history.
+
+[Pipeline](https://github.com/nora-berth/Pet-tracker/actions) | [E2E Allure Report](https://nora-berth.github.io/Pet-tracker/)
 
 
 ## Tech Stack
