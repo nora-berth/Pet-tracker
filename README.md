@@ -71,6 +71,12 @@ pet-tracker/
 │   ├── tests/
 │   │   ├── pet-management.spec.js
 │   │   └── auth.spec.js
+│   ├── pages/
+│   │   ├── login.page.js
+│   │   ├── signup.page.js
+│   │   ├── home.page.js
+│   │   ├── pet-detail.page.js
+│   │   └── nav.component.js
 │   ├── fixtures/
 │   │   ├── pet-fixtures.js
 │   │   └── auth-fixtures.js
