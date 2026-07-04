@@ -5,6 +5,7 @@
 ![Frontend Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/frontend-tests.yml/badge.svg)
 ![E2E Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/e2e-tests.yml/badge.svg)
 ![API Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/api-tests.yml/badge.svg)
+![Build & Test](https://github.com/nora-berth/pet-tracker/actions/workflows/build-and-test.yml/badge.svg)
 
 
 A pet health management application, including multi-layer test automation, CI/CD pipeline, and test reporting.
@@ -45,6 +46,7 @@ pet-tracker/
 │   ├── backend-tests.yml
 │   ├── e2e-tests.yml
 │   ├── api-tests.yml
+│   ├── build-and-test.yml
 │   └── deploy-allure-pages.yml
 ├── backend/
 │   ├── config/
