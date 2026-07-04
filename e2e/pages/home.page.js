@@ -12,6 +12,9 @@ export class HomePage {
     this.notesField = page.getByLabel('Notes');
     this.submitPetButton = page.getByRole('button', { name: 'Add Pet', exact: true });
     this.emptyStateText = page.getByText(/No pets yet/i);
+
+    this.petHeading = (name) => page.getByRole('heading', { name }).first();
+    this.petText = (name) => page.getByText(name);
   }
 
   async goto() {
@@ -22,17 +25,13 @@ export class HomePage {
     await this.addPetButton.click();
     await this.nameField.fill(name);
     await this.speciesField.selectOption(species);
-    if (breed) await this.breedField.fill(breed);
-    if (birthDate) await this.birthDateField.fill(birthDate);
-    if (notes) await this.notesField.fill(notes);
+    if (breed !== undefined) await this.breedField.fill(breed);
+    if (birthDate !== undefined) await this.birthDateField.fill(birthDate);
+    if (notes !== undefined) await this.notesField.fill(notes);
     await this.submitPetButton.click();
   }
 
   async clickPet(name) {
-    await this.page.getByRole('heading', { name }).first().click();
-  }
-
-  petText(name) {
-    return this.page.getByText(name);
+    await this.petHeading(name).click();
   }
 }
