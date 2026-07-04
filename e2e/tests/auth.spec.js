@@ -1,5 +1,9 @@
 import { test, expect } from '../fixtures/auth-fixtures.js';
 import { allure } from 'allure-playwright';
+import { LoginPage } from '../pages/login.page.js';
+import { SignupPage } from '../pages/signup.page.js';
+import { NavComponent } from '../pages/nav.component.js';
+import { HomePage } from '../pages/home.page.js';
 
 test.describe('Authentication Flow', () => {
   test.beforeEach(async ({ page }) => {
@@ -10,13 +14,15 @@ test.describe('Authentication Flow', () => {
     await allure.severity('blocker');
     await allure.description('Verify that unauthenticated users are redirected to login page');
 
+    const loginPage = new LoginPage(page);
+
     await test.step('Navigate to home page', async () => {
       await page.goto('/');
     });
 
     await test.step('Verify redirect to login page', async () => {
       await expect(page).toHaveURL('/login');
-      await expect(page.getByRole('heading', { name: 'Login to Pet Tracker' })).toBeVisible();
+      await expect(loginPage.heading).toBeVisible();
     });
   });
 
@@ -33,30 +39,22 @@ test.describe('Authentication Flow', () => {
       lastName: 'User',
     };
 
+    const signupPage = new SignupPage(page);
+    const nav = new NavComponent(page);
+
     await test.step('Navigate to signup page', async () => {
-      await page.goto('/signup');
-      await expect(page.getByRole('heading', { name: 'Sign Up for Pet Tracker' })).toBeVisible();
+      await signupPage.goto();
+      await expect(signupPage.heading).toBeVisible();
     });
 
-    await test.step('Fill in signup form', async () => {
-      await page.getByLabel(/username/i).fill(testUser.username);
-      await page.getByLabel(/email/i).fill(testUser.email);
-      await page.getByLabel('First Name').fill(testUser.firstName);
-      await page.getByLabel('Last Name').fill(testUser.lastName);
-      await page.getByLabel(/^password\s*\*?$/i).fill(testUser.password);
-      await page.getByLabel(/confirm password/i).fill(testUser.password);
-    });
-
-    await test.step('Submit signup form', async () => {
-      await page.getByRole('button', { name: /sign up/i }).click();
+    await test.step('Fill in and submit signup form', async () => {
+      await signupPage.signup(testUser);
     });
 
     await test.step('Verify successful signup and auto-login', async () => {
       await expect(page).toHaveURL('/', { timeout: 5000 });
-
-      await expect(page.getByText(`Welcome, ${testUser.username}`)).toBeVisible();
-
-      await expect(page.getByRole('button', { name: /logout/i })).toBeVisible();
+      await expect(nav.welcomeText(testUser.username)).toBeVisible();
+      await expect(nav.logoutButton).toBeVisible();
     });
   });
 
@@ -64,18 +62,19 @@ test.describe('Authentication Flow', () => {
     await allure.severity('normal');
     await allure.description('Test validation errors during registration');
 
-    await test.step('Navigate to signup page', async () => {
-      await page.goto('/signup');
-    });
-
+    const signupPage = new SignupPage(page);
     const timestamp = Date.now();
 
+    await test.step('Navigate to signup page', async () => {
+      await signupPage.goto();
+    });
+
     await test.step('Submit form with mismatched passwords', async () => {
-      await page.getByLabel(/username/i).fill(`testuser_mismatch_${timestamp}`);
-      await page.getByLabel(/email/i).fill(`testuser_mismatch_${timestamp}@example.com`);
-      await page.getByLabel(/^password\s*\*?$/i).fill('password123');
-      await page.getByLabel(/confirm password/i).fill('different456');
-      await page.getByRole('button', { name: /sign up/i }).click();
+      await signupPage.username.fill(`testuser_mismatch_${timestamp}`);
+      await signupPage.email.fill(`testuser_mismatch_${timestamp}@example.com`);
+      await signupPage.password.fill('password123');
+      await signupPage.confirmPassword.fill('different456');
+      await signupPage.signupButton.click();
     });
 
     await test.step('Verify validation error is displayed', async () => {
@@ -87,26 +86,22 @@ test.describe('Authentication Flow', () => {
     await allure.severity('blocker');
     await allure.description('Test user login with valid credentials');
 
+    const loginPage = new LoginPage(page);
+    const nav = new NavComponent(page);
+
     await test.step('Navigate to login page', async () => {
-      await page.goto('/login');
-      await expect(page.getByRole('heading', { name: 'Login to Pet Tracker' })).toBeVisible();
+      await loginPage.goto();
+      await expect(loginPage.heading).toBeVisible();
     });
 
-    await test.step('Fill in login form', async () => {
-      await page.getByLabel('Username').fill(testUser.username);
-      await page.getByLabel('Password').fill(testUser.password);
-    });
-
-    await test.step('Submit login form', async () => {
-      await page.getByRole('button', { name: /login/i }).click();
+    await test.step('Fill in and submit login form', async () => {
+      await loginPage.login(testUser.username, testUser.password);
     });
 
     await test.step('Verify successful login', async () => {
       await expect(page).toHaveURL('/', { timeout: 5000 });
-
-      await expect(page.getByText(`Welcome, ${testUser.username}`)).toBeVisible();
-
-      await expect(page.getByRole('button', { name: /logout/i })).toBeVisible();
+      await expect(nav.welcomeText(testUser.username)).toBeVisible();
+      await expect(nav.logoutButton).toBeVisible();
     });
   });
 
@@ -114,18 +109,18 @@ test.describe('Authentication Flow', () => {
     await allure.severity('critical');
     await allure.description('Test error handling for invalid login credentials');
 
+    const loginPage = new LoginPage(page);
+
     await test.step('Navigate to login page', async () => {
-      await page.goto('/login');
+      await loginPage.goto();
     });
 
     await test.step('Submit form with invalid credentials', async () => {
-      await page.getByLabel('Username').fill('invaliduser');
-      await page.getByLabel('Password').fill('wrongpassword');
-      await page.getByRole('button', { name: /login/i }).click();
+      await loginPage.login('invaliduser', 'wrongpassword');
     });
 
     await test.step('Verify error message is displayed', async () => {
-      await expect(page.getByText(/invalid/i)).toBeVisible();
+      await expect(loginPage.errorMessage).toBeVisible();
     });
 
     await test.step('Verify user remains on login page', async () => {
@@ -137,21 +132,22 @@ test.describe('Authentication Flow', () => {
     await allure.severity('blocker');
     await allure.description('Test user logout functionality');
 
+    const loginPage = new LoginPage(page);
+    const nav = new NavComponent(page);
+
     await test.step('Login first', async () => {
-      await page.goto('/login');
-      await page.getByLabel('Username').fill(testUser.username);
-      await page.getByLabel('Password').fill(testUser.password);
-      await page.getByRole('button', { name: /login/i }).click();
+      await loginPage.goto();
+      await loginPage.login(testUser.username, testUser.password);
       await expect(page).toHaveURL('/');
     });
 
     await test.step('Click logout button', async () => {
-      await page.getByRole('button', { name: /logout/i }).click();
+      await nav.logout();
     });
 
     await test.step('Verify redirect to login page', async () => {
       await expect(page).toHaveURL('/login', { timeout: 5000 });
-      await expect(page.getByRole('heading', { name: 'Login to Pet Tracker' })).toBeVisible();
+      await expect(loginPage.heading).toBeVisible();
     });
 
     await test.step('Verify cannot access protected routes', async () => {
@@ -164,11 +160,12 @@ test.describe('Authentication Flow', () => {
     await allure.severity('critical');
     await allure.description('Test that authentication persists after page refresh');
 
+    const loginPage = new LoginPage(page);
+    const nav = new NavComponent(page);
+
     await test.step('Login', async () => {
-      await page.goto('/login');
-      await page.getByLabel('Username').fill(testUser.username);
-      await page.getByLabel('Password').fill(testUser.password);
-      await page.getByRole('button', { name: /login/i }).click();
+      await loginPage.goto();
+      await loginPage.login(testUser.username, testUser.password);
       await expect(page).toHaveURL('/');
     });
 
@@ -178,8 +175,8 @@ test.describe('Authentication Flow', () => {
 
     await test.step('Verify user is still authenticated', async () => {
       await expect(page).toHaveURL('/');
-      await expect(page.getByText(`Welcome, ${testUser.username}`)).toBeVisible();
-      await expect(page.getByRole('button', { name: /logout/i })).toBeVisible();
+      await expect(nav.welcomeText(testUser.username)).toBeVisible();
+      await expect(nav.logoutButton).toBeVisible();
     });
   });
 
@@ -187,27 +184,30 @@ test.describe('Authentication Flow', () => {
     await allure.severity('normal');
     await allure.description('Test navigation between login and signup pages');
 
+    const loginPage = new LoginPage(page);
+    const signupPage = new SignupPage(page);
+
     await test.step('Start on login page', async () => {
-      await page.goto('/login');
-      await expect(page.getByRole('heading', { name: 'Login to Pet Tracker' })).toBeVisible();
+      await loginPage.goto();
+      await expect(loginPage.heading).toBeVisible();
     });
 
     await test.step('Click signup link', async () => {
-      await page.getByRole('link', { name: /sign up/i }).click();
+      await loginPage.signupLink.click();
     });
 
     await test.step('Verify navigation to signup page', async () => {
       await expect(page).toHaveURL('/signup');
-      await expect(page.getByRole('heading', { name: 'Sign Up for Pet Tracker' })).toBeVisible();
+      await expect(signupPage.heading).toBeVisible();
     });
 
     await test.step('Click login link', async () => {
-      await page.getByRole('link', { name: /login/i }).click();
+      await signupPage.loginLink.click();
     });
 
     await test.step('Verify navigation back to login page', async () => {
       await expect(page).toHaveURL('/login');
-      await expect(page.getByRole('heading', { name: 'Login to Pet Tracker' })).toBeVisible();
+      await expect(loginPage.heading).toBeVisible();
     });
   });
 });
@@ -216,6 +216,10 @@ test.describe('Multi-Tenancy', () => {
   test('users can only see their own pets', async ({ page, context }) => {
     await allure.severity('blocker');
     await allure.description('Test that users can only see their own pets (multi-tenancy)');
+
+    const signupPage = new SignupPage(page);
+    const homePage = new HomePage(page);
+    const nav = new NavComponent(page);
 
     // Create unique usernames for this test
     const timestamp = Date.now();
@@ -231,55 +235,41 @@ test.describe('Multi-Tenancy', () => {
     };
 
     await test.step('Create and login as user 1', async () => {
-      await page.goto('/signup');
-      await page.getByLabel(/username/i).fill(user1.username);
-      await page.getByLabel(/email/i).fill(user1.email);
-      await page.getByLabel(/^password\s*\*?$/i).fill(user1.password);
-      await page.getByLabel(/confirm password/i).fill(user1.password);
-      await page.getByRole('button', { name: /sign up/i }).click();
+      await signupPage.goto();
+      await signupPage.signupBasic(user1.username, user1.email, user1.password);
       await expect(page).toHaveURL('/');
     });
 
     await test.step('Create pet as user 1', async () => {
-      await page.getByRole('button', { name: 'Add Pet' }).click();
-      await page.getByRole('textbox', { name: 'Name' }).fill('User1 Pet');
-      await page.getByLabel(/species/i).selectOption('dog');
-      await page.getByRole('button', { name: /add pet/i }).click();
-      await expect(page.getByText('User1 Pet')).toBeVisible();
+      await homePage.addPet({ name: 'User1 Pet', species: 'dog' });
+      await expect(homePage.petText('User1 Pet')).toBeVisible();
     });
 
     await test.step('Logout user 1', async () => {
-      await page.getByRole('button', { name: /logout/i }).click();
+      await nav.logout();
       await expect(page).toHaveURL('/login');
     });
 
     await test.step('Create and login as user 2', async () => {
-      await page.goto('/signup');
-      await page.getByLabel(/username/i).fill(user2.username);
-      await page.getByLabel(/email/i).fill(user2.email);
-      await page.getByLabel(/^password\s*\*?$/i).fill(user2.password);
-      await page.getByLabel(/confirm password/i).fill(user2.password);
-      await page.getByRole('button', { name: /sign up/i }).click();
+      await signupPage.goto();
+      await signupPage.signupBasic(user2.username, user2.email, user2.password);
       await expect(page).toHaveURL('/');
     });
 
     await test.step('Verify user 2 cannot see user 1 pet', async () => {
       // User 2 should see empty pet list
-      await expect(page.getByText('User1 Pet')).not.toBeVisible();
-      await expect(page.getByText(/No pets yet/i)).toBeVisible();
+      await expect(homePage.petText('User1 Pet')).not.toBeVisible();
+      await expect(homePage.emptyStateText).toBeVisible();
     });
 
     await test.step('Create pet as user 2', async () => {
-      await page.getByRole('button', { name: 'Add Pet' }).click();
-      await page.getByRole('textbox', { name: 'Name' }).fill('User2 Pet');
-      await page.getByLabel(/species/i).selectOption('cat');
-      await page.getByRole('button', { name: /add pet/i }).click();
-      await expect(page.getByText('User2 Pet')).toBeVisible();
+      await homePage.addPet({ name: 'User2 Pet', species: 'cat' });
+      await expect(homePage.petText('User2 Pet')).toBeVisible();
     });
 
     await test.step('Verify user 2 only sees their own pet', async () => {
-      await expect(page.getByText('User2 Pet')).toBeVisible();
-      await expect(page.getByText('User1 Pet')).not.toBeVisible();
+      await expect(homePage.petText('User2 Pet')).toBeVisible();
+      await expect(homePage.petText('User1 Pet')).not.toBeVisible();
     });
   });
 });
