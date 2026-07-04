@@ -14,7 +14,7 @@ On every push and PR to `main`, four test layers run in parallel:
 
 - **Backend** (pytest) | **Frontend** (Vitest) | **E2E** (Playwright) | **API** (Newman)
 
-The **Build & Test** gate job requires all four to pass before the pipeline is green. After a successful `main` build, a separate workflow generates and deploys E2E Allure reports to GitHub Pages with trend history.
+The **Build & Test** gate job requires all four to pass before the pipeline is green. Code coverage is enforced at a minimum of 90% via Codecov. After a successful `main` build, a separate workflow generates and deploys E2E Allure reports to GitHub Pages with trend history.
 
 [Pipeline](https://github.com/nora-berth/Pet-tracker/actions) | [E2E Allure Report](https://nora-berth.github.io/Pet-tracker/)
 
