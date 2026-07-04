@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/auth-fixtures.js';
 import { allure } from 'allure-playwright';
 
 test.describe('Authentication Flow', () => {
@@ -68,20 +68,22 @@ test.describe('Authentication Flow', () => {
       await page.goto('/signup');
     });
 
+    const timestamp = Date.now();
+
     await test.step('Submit form with mismatched passwords', async () => {
-      await page.getByLabel(/username/i).fill('testuser');
-      await page.getByLabel(/email/i).fill('test@example.com');
+      await page.getByLabel(/username/i).fill(`testuser_mismatch_${timestamp}`);
+      await page.getByLabel(/email/i).fill(`testuser_mismatch_${timestamp}@example.com`);
       await page.getByLabel(/^password\s*\*?$/i).fill('password123');
       await page.getByLabel(/confirm password/i).fill('different456');
       await page.getByRole('button', { name: /sign up/i }).click();
     });
 
     await test.step('Verify validation error is displayed', async () => {
-      await expect(page.getByText(/password/i)).toBeVisible();
+      await expect(page.getByText('Passwords do not match.')).toBeVisible();
     });
   });
 
-  test('allows user to login with valid credentials', async ({ page }) => {
+  test('allows user to login with valid credentials', async ({ page, testUser }) => {
     await allure.severity('blocker');
     await allure.description('Test user login with valid credentials');
 
@@ -91,8 +93,8 @@ test.describe('Authentication Flow', () => {
     });
 
     await test.step('Fill in login form', async () => {
-      await page.getByLabel('Username').fill('testuser');
-      await page.getByLabel('Password').fill('testpass123');
+      await page.getByLabel('Username').fill(testUser.username);
+      await page.getByLabel('Password').fill(testUser.password);
     });
 
     await test.step('Submit login form', async () => {
@@ -102,7 +104,7 @@ test.describe('Authentication Flow', () => {
     await test.step('Verify successful login', async () => {
       await expect(page).toHaveURL('/', { timeout: 5000 });
 
-      await expect(page.getByText('Welcome, testuser')).toBeVisible();
+      await expect(page.getByText(`Welcome, ${testUser.username}`)).toBeVisible();
 
       await expect(page.getByRole('button', { name: /logout/i })).toBeVisible();
     });
@@ -131,14 +133,14 @@ test.describe('Authentication Flow', () => {
     });
   });
 
-  test('allows user to logout', async ({ page }) => {
+  test('allows user to logout', async ({ page, testUser }) => {
     await allure.severity('blocker');
     await allure.description('Test user logout functionality');
 
     await test.step('Login first', async () => {
       await page.goto('/login');
-      await page.getByLabel('Username').fill('testuser');
-      await page.getByLabel('Password').fill('testpass123');
+      await page.getByLabel('Username').fill(testUser.username);
+      await page.getByLabel('Password').fill(testUser.password);
       await page.getByRole('button', { name: /login/i }).click();
       await expect(page).toHaveURL('/');
     });
@@ -158,14 +160,14 @@ test.describe('Authentication Flow', () => {
     });
   });
 
-  test('persists authentication across page refreshes', async ({ page }) => {
+  test('persists authentication across page refreshes', async ({ page, testUser }) => {
     await allure.severity('critical');
     await allure.description('Test that authentication persists after page refresh');
 
     await test.step('Login', async () => {
       await page.goto('/login');
-      await page.getByLabel('Username').fill('testuser');
-      await page.getByLabel('Password').fill('testpass123');
+      await page.getByLabel('Username').fill(testUser.username);
+      await page.getByLabel('Password').fill(testUser.password);
       await page.getByRole('button', { name: /login/i }).click();
       await expect(page).toHaveURL('/');
     });
@@ -176,7 +178,7 @@ test.describe('Authentication Flow', () => {
 
     await test.step('Verify user is still authenticated', async () => {
       await expect(page).toHaveURL('/');
-      await expect(page.getByText('Welcome, testuser')).toBeVisible();
+      await expect(page.getByText(`Welcome, ${testUser.username}`)).toBeVisible();
       await expect(page.getByRole('button', { name: /logout/i })).toBeVisible();
     });
   });
@@ -239,8 +241,8 @@ test.describe('Multi-Tenancy', () => {
     });
 
     await test.step('Create pet as user 1', async () => {
-      await page.getByRole('link', { name: /add new pet/i }).click();
-      await page.getByLabel(/pet name/i).fill('User1 Pet');
+      await page.getByRole('button', { name: 'Add Pet' }).click();
+      await page.getByRole('textbox', { name: 'Name' }).fill('User1 Pet');
       await page.getByLabel(/species/i).selectOption('dog');
       await page.getByRole('button', { name: /add pet/i }).click();
       await expect(page.getByText('User1 Pet')).toBeVisible();
@@ -264,12 +266,12 @@ test.describe('Multi-Tenancy', () => {
     await test.step('Verify user 2 cannot see user 1 pet', async () => {
       // User 2 should see empty pet list
       await expect(page.getByText('User1 Pet')).not.toBeVisible();
-      await expect(page.getByText(/no pets found/i)).toBeVisible();
+      await expect(page.getByText(/No pets yet/i)).toBeVisible();
     });
 
     await test.step('Create pet as user 2', async () => {
-      await page.getByRole('link', { name: /add new pet/i }).click();
-      await page.getByLabel(/pet name/i).fill('User2 Pet');
+      await page.getByRole('button', { name: 'Add Pet' }).click();
+      await page.getByRole('textbox', { name: 'Name' }).fill('User2 Pet');
       await page.getByLabel(/species/i).selectOption('cat');
       await page.getByRole('button', { name: /add pet/i }).click();
       await expect(page.getByText('User2 Pet')).toBeVisible();
