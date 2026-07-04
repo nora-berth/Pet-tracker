@@ -33,7 +33,7 @@ jobs:
     secrets: inherit
 
   ci-gate:
-    name: CI Gate
+    name: Build & Test
     runs-on: ubuntu-latest
     if: always()
     needs: [backend-tests, frontend-tests, e2e-tests, api-tests]
