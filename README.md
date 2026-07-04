@@ -1,10 +1,6 @@
 # Pet Tracker - My app + QA Project
 
 [![codecov](https://codecov.io/gh/nora-berth/pet-tracker/graph/badge.svg)](https://codecov.io/gh/nora-berth/pet-tracker)
-![Backend Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/backend-tests.yml/badge.svg)
-![Frontend Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/frontend-tests.yml/badge.svg)
-![E2E Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/e2e-tests.yml/badge.svg)
-![API Tests](https://github.com/nora-berth/pet-tracker/actions/workflows/api-tests.yml/badge.svg)
 ![Build & Test](https://github.com/nora-berth/pet-tracker/actions/workflows/build-and-test.yml/badge.svg)
 
 
