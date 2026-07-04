@@ -68,9 +68,11 @@ test.describe('Authentication Flow', () => {
       await page.goto('/signup');
     });
 
+    const timestamp = Date.now();
+
     await test.step('Submit form with mismatched passwords', async () => {
-      await page.getByLabel(/username/i).fill('testuser');
-      await page.getByLabel(/email/i).fill('test@example.com');
+      await page.getByLabel(/username/i).fill(`testuser_mismatch_${timestamp}`);
+      await page.getByLabel(/email/i).fill(`testuser_mismatch_${timestamp}@example.com`);
       await page.getByLabel(/^password\s*\*?$/i).fill('password123');
       await page.getByLabel(/confirm password/i).fill('different456');
       await page.getByRole('button', { name: /sign up/i }).click();
