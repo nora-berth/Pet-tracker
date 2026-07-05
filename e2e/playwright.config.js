@@ -1,11 +1,40 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const crossBrowser = process.env.CROSS_BROWSER === 'true';
+
+const projects = [
+  {
+    name: 'chromium',
+    use: { ...devices['Desktop Chrome'] },
+  },
+];
+
+if (crossBrowser || !process.env.CI) {
+  projects.push(
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
+  );
+}
+
+if (!process.env.CI) {
+  projects.push({
+    name: 'edge',
+    use: { ...devices['Desktop Edge'], channel: 'msedge' },
+  });
+}
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 2 : undefined,
   reporter: [
     ['html'],
     ['allure-playwright', {
@@ -19,12 +48,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
 
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-  ],
+  projects,
 
   webServer: {
     command: 'npm run dev --prefix ../frontend',

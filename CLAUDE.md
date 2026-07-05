@@ -64,6 +64,14 @@ newman run "backend/postman/Pet Tracker API.postman_collection.json" \
 - Use accessibility selectors (role, label, text) over CSS selectors
 - Use fixtures (`e2e/fixtures/pet-fixtures.js`) for test data with automatic cleanup — never clean up in the test body
 - Allure reports are for E2E only and deploy to GitHub Pages in CI
+- **Page Object Model (POM):** All UI selectors live in page objects under `e2e/pages/`
+  - One class per route: `LoginPage`, `SignupPage`, `HomePage`, `PetDetailPage`
+  - Shared nav bar: `NavComponent` (used across authenticated pages)
+  - All locators (static and dynamic) must be defined in the constructor — never inline in methods
+  - Static locators are properties (e.g., `this.heading = page.getByRole(...)`)
+  - Dynamic locators are arrow functions (e.g., `this.petText = (name) => page.getByText(name)`)
+  - Page objects own locators and actions; tests own all assertions — no `expect()` in page objects
+  - Tests import page objects and call methods for interactions, then assert directly on returned locators
 
 ### API Tests (Postman/Newman)
 - Collection: `backend/postman/Pet Tracker API.postman_collection.json`
