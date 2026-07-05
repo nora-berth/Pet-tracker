@@ -114,7 +114,8 @@ pet-tracker/
 
 **Nora Bertholome** - QA Engineer
 
-GitHub: [@nora-berth](https://github.com/nora-berth)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/nora-bertholome-868755100)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?logo=github&logoColor=white)](https://github.com/nora-berth)
 
 
 **Built with ❤️ for my pets and as my personal QA project**
