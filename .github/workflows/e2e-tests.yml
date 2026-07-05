@@ -61,7 +61,12 @@ jobs:
 
       - name: Install Playwright browsers
         working-directory: ./e2e
-        run: npx playwright install --with-deps chromium
+        run: |
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            npx playwright install --with-deps chromium firefox webkit
+          else
+            npx playwright install --with-deps chromium
+          fi
 
       - name: Run migrations
         working-directory: ./backend
@@ -87,6 +92,8 @@ jobs:
 
       - name: Run E2E tests
         working-directory: ./e2e
+        env:
+          CROSS_BROWSER: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         run: npx playwright test --retries=2
 
       - name: Upload Playwright report

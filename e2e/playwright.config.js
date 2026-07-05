@@ -1,5 +1,34 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const crossBrowser = process.env.CROSS_BROWSER === 'true';
+
+const projects = [
+  {
+    name: 'chromium',
+    use: { ...devices['Desktop Chrome'] },
+  },
+];
+
+if (crossBrowser || !process.env.CI) {
+  projects.push(
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
+  );
+}
+
+if (!process.env.CI) {
+  projects.push({
+    name: 'edge',
+    use: { ...devices['Desktop Edge'], channel: 'msedge' },
+  });
+}
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
@@ -19,12 +48,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
 
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-  ],
+  projects,
 
   webServer: {
     command: 'npm run dev --prefix ../frontend',
