@@ -14,9 +14,9 @@ On every push and PR to `main`, four test layers run in parallel:
 
 - **Backend** (pytest) | **Frontend** (Vitest) | **E2E** (Playwright) | **API** (Newman)
 
-The **Build & Test** gate job requires all four to pass before the pipeline is green. Code coverage is enforced at a minimum of 90% via Codecov. After a successful `main` build, a separate workflow generates and deploys E2E Allure reports to GitHub Pages with trend history.
+The **Build & Test** gate job requires all four to pass before the pipeline is green. Code coverage is enforced at a minimum of 90% via Codecov. After a successful `main` build, a separate workflow generates and deploys E2E Allure and API Newman reports to GitHub Pages with trend history.
 
-[Pipeline](https://github.com/nora-berth/Pet-tracker/actions) | [E2E Allure Report](https://nora-berth.github.io/Pet-tracker/)
+[Pipeline](https://github.com/nora-berth/Pet-tracker/actions) | [E2E Allure Report](https://nora-berth.github.io/Pet-tracker/allure/) | [API Newman Report](https://nora-berth.github.io/Pet-tracker/newman/)
 
 
 ## Tech Stack
@@ -33,7 +33,7 @@ The **Build & Test** gate job requires all four to pass before the pipeline is g
 - **Frontend Testing**: Vitest + React Testing Library
 - **E2E Testing**: Playwright
 - **API Testing**: Postman + Newman (CI)
-- **Test Reporting**: Allure (for E2E, deployed to GitHub Pages), Newman htmlextra (for API tests)
+- **Test Reporting**: Allure (for E2E) and Newman htmlextra (for API), both deployed to GitHub Pages
 - **CI/CD**: GitHub Actions
 
 
