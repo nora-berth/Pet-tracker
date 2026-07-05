@@ -1,7 +1,7 @@
 # Pet Tracker - My app + QA Project
 
 [![codecov](https://codecov.io/gh/nora-berth/pet-tracker/graph/badge.svg)](https://codecov.io/gh/nora-berth/pet-tracker)
-![Build & Test](https://github.com/nora-berth/pet-tracker/actions/workflows/build-and-test.yml/badge.svg)
+[![Build & Test](https://github.com/nora-berth/pet-tracker/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/nora-berth/Pet-tracker/actions/workflows/build-and-test.yml)
 
 
 A pet health management application, including multi-layer test automation, CI/CD pipeline, and test reporting.
