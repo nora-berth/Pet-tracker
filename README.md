@@ -1,7 +1,7 @@
 # Pet Tracker - My app + QA Project
 
 [![codecov](https://codecov.io/gh/nora-berth/pet-tracker/graph/badge.svg)](https://codecov.io/gh/nora-berth/pet-tracker)
-![Build & Test](https://github.com/nora-berth/pet-tracker/actions/workflows/build-and-test.yml/badge.svg)
+[![Build & Test](https://github.com/nora-berth/pet-tracker/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/nora-berth/Pet-tracker/actions/workflows/build-and-test.yml)
 
 
 A pet health management application, including multi-layer test automation, CI/CD pipeline, and test reporting.
@@ -10,9 +10,13 @@ Still a work in progress. Check out the [SETUP.md](SETUP.md) guide for detailed 
 
 ## CI/CD Pipeline
 
-[Pipeline](https://github.com/nora-berth/Pet-tracker/actions)
+On every push and PR to `main`, four test layers run in parallel:
 
-[E2E Allure Report](https://nora-berth.github.io/Pet-tracker/)
+- **Backend** (pytest) | **Frontend** (Vitest) | **E2E** (Playwright) | **API** (Newman)
+
+The **Build & Test** gate job requires all four to pass before the pipeline is green. Code coverage is enforced at a minimum of 90% via Codecov. E2E tests run on Chromium only for PRs, and cross-browser (Chromium, Firefox, WebKit) on pushes to `main`. After a successful `main` build, a separate workflow generates and deploys E2E Allure and API Newman reports to GitHub Pages with trend history.
+
+[Pipeline](https://github.com/nora-berth/Pet-tracker/actions) | [E2E Allure Report](https://nora-berth.github.io/Pet-tracker/allure/) | [API Newman Report](https://nora-berth.github.io/Pet-tracker/newman/)
 
 
 ## Tech Stack
@@ -27,9 +31,9 @@ Still a work in progress. Check out the [SETUP.md](SETUP.md) guide for detailed 
 ### Testing & QA
 - **Backend Testing**: Pytest
 - **Frontend Testing**: Vitest + React Testing Library
-- **E2E Testing**: Playwright
+- **E2E Testing**: Playwright (Chromium, Firefox, WebKit)
 - **API Testing**: Postman + Newman (CI)
-- **Test Reporting**: Allure (for E2E, deployed to GitHub Pages), Newman htmlextra (for API tests)
+- **Test Reporting**: Allure (for E2E) and Newman htmlextra (for API), both deployed to GitHub Pages
 - **CI/CD**: GitHub Actions
 
 
@@ -67,6 +71,12 @@ pet-tracker/
 │   ├── tests/
 │   │   ├── pet-management.spec.js
 │   │   └── auth.spec.js
+│   ├── pages/
+│   │   ├── login.page.js
+│   │   ├── signup.page.js
+│   │   ├── home.page.js
+│   │   ├── pet-detail.page.js
+│   │   └── nav.component.js
 │   ├── fixtures/
 │   │   ├── pet-fixtures.js
 │   │   └── auth-fixtures.js
@@ -104,7 +114,8 @@ pet-tracker/
 
 **Nora Bertholome** - QA Engineer
 
-GitHub: [@nora-berth](https://github.com/nora-berth)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/nora-bertholome-868755100)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?logo=github&logoColor=white)](https://github.com/nora-berth)
 
 
 **Built with ❤️ for my pets and as my personal QA project**

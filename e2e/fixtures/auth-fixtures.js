@@ -1,4 +1,5 @@
 import { test as base } from '@playwright/test';
+import { LoginPage } from '../pages/login.page.js';
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
@@ -65,11 +66,9 @@ export const test = base.extend({
    * Fixture: Provides an authenticated page (already logged in)
    */
   authenticatedPage: async ({ page, testUser }, use) => {
-    // Login via UI
-    await page.goto('/login');
-    await page.getByLabel('Username').fill(testUser.username);
-    await page.getByLabel('Password').fill(testUser.password);
-    await page.getByRole('button', { name: /login/i }).click();
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login(testUser.username, testUser.password);
     await page.waitForURL('/', { timeout: 5000 });
 
     await use(page);
