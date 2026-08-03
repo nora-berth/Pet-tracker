@@ -1,4 +1,4 @@
-name: Frontend Tests
+name: Frontend Unit Tests (Vitest)
 
 on:
   workflow_call:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   frontend-tests:
-    name: Frontend Tests (Vitest)
+    name: Frontend Unit Tests (Vitest)
     runs-on: ubuntu-latest
 
     permissions:

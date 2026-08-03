@@ -1,4 +1,4 @@
-name: Deploy Test Reports to GitHub Pages
+name: Deploy Test Reports (GitHub Pages)
 
 on:
   workflow_run:
