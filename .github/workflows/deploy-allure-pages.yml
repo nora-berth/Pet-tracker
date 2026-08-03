@@ -1,8 +1,8 @@
-name: Deploy E2E Allure Report to GitHub Pages
+name: Deploy Test Reports to GitHub Pages
 
 on:
   workflow_run:
-    workflows: ["E2E Tests"]
+    workflows: ["Build & Test"]
     types:
       - completed
     branches: [main]
@@ -10,7 +10,7 @@ on:
 
 jobs:
   deploy:
-    name: Generate and Deploy Allure Report
+    name: Generate and Deploy Test Reports
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion != 'cancelled' || github.event_name == 'workflow_dispatch' }}
 
@@ -22,7 +22,7 @@ jobs:
 
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}allure/
 
     concurrency:
       group: "pages"
@@ -32,7 +32,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download Allure results artifact
+      - name: Download test report artifacts
         uses: actions/github-script@v7
         with:
           script: |
@@ -45,14 +45,14 @@ jobs:
               const runs = await github.rest.actions.listWorkflowRuns({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                workflow_id: 'e2e-tests.yml',
+                workflow_id: 'build-and-test.yml',
                 branch: 'main',
                 per_page: 1,
               });
               runId = runs.data.workflow_runs[0].id;
             }
 
-            console.log(`Downloading allure-results-e2e from run ${runId}`);
+            console.log(`Downloading artifacts from run ${runId}`);
 
             const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
               owner: context.repo.owner,
@@ -60,21 +60,39 @@ jobs:
               run_id: runId,
             });
 
-            const artifact = artifacts.data.artifacts.find(a => a.name === 'allure-results-e2e');
-            if (!artifact) {
-              core.setFailed('allure-results-e2e artifact not found in E2E run');
+            // Download Allure results
+            const allureArtifact = artifacts.data.artifacts.find(a => a.name === 'allure-results-e2e');
+            if (!allureArtifact) {
+              core.setFailed('allure-results-e2e artifact not found');
               return;
             }
 
-            const download = await github.rest.actions.downloadArtifact({
+            const allureDownload = await github.rest.actions.downloadArtifact({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              artifact_id: artifact.id,
+              artifact_id: allureArtifact.id,
               archive_format: 'zip',
             });
 
-            fs.writeFileSync('allure-results.zip', Buffer.from(download.data));
-            console.log('Artifact downloaded successfully');
+            fs.writeFileSync('allure-results.zip', Buffer.from(allureDownload.data));
+            console.log('Allure artifact downloaded');
+
+            // Download Newman report
+            const newmanArtifact = artifacts.data.artifacts.find(a => a.name === 'newman-report');
+            if (!newmanArtifact) {
+              core.warning('newman-report artifact not found — skipping Newman report');
+              return;
+            }
+
+            const newmanDownload = await github.rest.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: newmanArtifact.id,
+              archive_format: 'zip',
+            });
+
+            fs.writeFileSync('newman-report.zip', Buffer.from(newmanDownload.data));
+            console.log('Newman artifact downloaded');
 
       - name: Extract Allure results
         run: |
@@ -87,9 +105,9 @@ jobs:
           mkdir -p allure-results/history
           PAGES_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
 
-          echo "Fetching history from $PAGES_URL/history/"
+          echo "Fetching history from $PAGES_URL/allure/history/"
           for file in history.json history-trend.json categories-trend.json duration-trend.json retry-trend.json; do
-            curl -sf "$PAGES_URL/history/$file" -o "allure-results/history/$file" && \
+            curl -sf "$PAGES_URL/allure/history/$file" -o "allure-results/history/$file" && \
               echo "  Fetched $file" || \
               echo "  $file not found (will be created on first run)"
           done
@@ -111,8 +129,21 @@ jobs:
 
       - name: Generate Allure report
         run: |
-          allure generate allure-results --clean -o allure-report
-          echo "Report generated: $(du -sh allure-report | cut -f1)"
+          allure generate allure-results --clean -o site/allure
+          echo "Allure report generated: $(du -sh site/allure | cut -f1)"
+
+      - name: Extract Newman report
+        run: |
+          mkdir -p site/newman
+          if [ -f newman-report.zip ]; then
+            unzip -q newman-report.zip -d newman-tmp
+            mv newman-tmp/newman-report.html site/newman/index.html
+            rm -rf newman-tmp
+            echo "Newman report extracted"
+          else
+            echo '<html><body><h1>Newman report not available</h1><p>The API test report was not generated in the last CI run.</p></body></html>' > site/newman/index.html
+            echo "Newman artifact missing — placeholder created"
+          fi
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v4
@@ -120,7 +151,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: allure-report
+          path: site
 
       - name: Deploy to GitHub Pages
         id: deployment

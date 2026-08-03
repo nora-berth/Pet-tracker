@@ -1,0 +1,57 @@
+name: Build & Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  backend-tests:
+    uses: ./.github/workflows/backend-tests.yml
+    secrets: inherit
+
+  frontend-tests:
+    uses: ./.github/workflows/frontend-tests.yml
+    secrets: inherit
+
+  e2e-tests:
+    uses: ./.github/workflows/e2e-tests.yml
+    secrets: inherit
+
+  api-tests:
+    uses: ./.github/workflows/api-tests.yml
+    secrets: inherit
+
+  ci-gate:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [backend-tests, frontend-tests, e2e-tests, api-tests]
+
+    steps:
+      - name: Check test results
+        run: |
+          echo "Backend Tests: ${{ needs.backend-tests.result }}"
+          echo "Frontend Tests: ${{ needs.frontend-tests.result }}"
+          echo "E2E Tests: ${{ needs.e2e-tests.result }}"
+          echo "API Tests: ${{ needs.api-tests.result }}"
+
+          if [[ "${{ needs.backend-tests.result }}" != "success" || \
+                "${{ needs.frontend-tests.result }}" != "success" || \
+                "${{ needs.e2e-tests.result }}" != "success" || \
+                "${{ needs.api-tests.result }}" != "success" ]]; then
+            echo "One or more test layers failed."
+            exit 1
+          fi
+
+          echo "All test layers passed."
