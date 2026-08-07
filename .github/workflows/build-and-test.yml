@@ -16,40 +16,40 @@ permissions:
   pull-requests: write
 
 jobs:
-  pytest-tests:
-    uses: ./.github/workflows/pytest-tests.yml
+  backend-unit-integration-tests:
+    uses: ./.github/workflows/backend-unit-integration-tests.yml
     secrets: inherit
 
-  vitest-tests:
-    uses: ./.github/workflows/vitest-tests.yml
+  frontend-unit-tests:
+    uses: ./.github/workflows/frontend-unit-tests.yml
     secrets: inherit
 
-  newman-tests:
-    uses: ./.github/workflows/newman-tests.yml
+  api-integration-tests:
+    uses: ./.github/workflows/api-integration-tests.yml
     secrets: inherit
 
-  playwright-tests:
-    uses: ./.github/workflows/playwright-tests.yml
+  e2e-tests:
+    uses: ./.github/workflows/e2e-tests.yml
     secrets: inherit
 
   ci-gate:
     name: Build & Test
     runs-on: ubuntu-latest
     if: always()
-    needs: [pytest-tests, vitest-tests, playwright-tests, newman-tests]
+    needs: [backend-unit-integration-tests, frontend-unit-tests, e2e-tests, api-integration-tests]
 
     steps:
       - name: Check test results
         run: |
-          echo "Backend Tests: ${{ needs.pytest-tests.result }}"
-          echo "Frontend Tests: ${{ needs.vitest-tests.result }}"
-          echo "E2E Tests: ${{ needs.playwright-tests.result }}"
-          echo "API Tests: ${{ needs.newman-tests.result }}"
+          echo "Backend Unit & Integration Tests: ${{ needs.backend-unit-integration-tests.result }}"
+          echo "Frontend Unit Tests: ${{ needs.frontend-unit-tests.result }}"
+          echo "E2E Tests: ${{ needs.e2e-tests.result }}"
+          echo "API Integration Tests: ${{ needs.api-integration-tests.result }}"
 
-          if [[ "${{ needs.pytest-tests.result }}" != "success" || \
-                "${{ needs.vitest-tests.result }}" != "success" || \
-                "${{ needs.playwright-tests.result }}" != "success" || \
-                "${{ needs.newman-tests.result }}" != "success" ]]; then
+          if [[ "${{ needs.backend-unit-integration-tests.result }}" != "success" || \
+                "${{ needs.frontend-unit-tests.result }}" != "success" || \
+                "${{ needs.e2e-tests.result }}" != "success" || \
+                "${{ needs.api-integration-tests.result }}" != "success" ]]; then
             echo "One or more test layers failed."
             exit 1
           fi

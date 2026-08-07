@@ -1,4 +1,4 @@
-name: API Tests (Newman)
+name: API Integration Tests
 
 on:
   workflow_call:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   api-tests:
-    name: API Tests (Newman)
+    name: API Integration Tests
     runs-on: ubuntu-latest
 
     permissions:
@@ -98,7 +98,7 @@ jobs:
               STATUS="$FAILED assertion(s) failed"
             fi
 
-            echo "## API Tests (Newman)" >> $GITHUB_STEP_SUMMARY
+            echo "## API Integration Tests" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
             echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
@@ -109,7 +109,7 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "Download the \`newman-report\` artifact for the full HTML report." >> $GITHUB_STEP_SUMMARY
           else
-            echo "## API Tests (Newman)" >> $GITHUB_STEP_SUMMARY
+            echo "## API Integration Tests" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "Newman results file not found. Tests may not have run." >> $GITHUB_STEP_SUMMARY
           fi

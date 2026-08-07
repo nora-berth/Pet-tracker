@@ -42,10 +42,10 @@ The **Build & Test** gate job requires all four to pass before the pipeline is g
 ```
 pet-tracker/
 ├── .github/workflows/
-│   ├── vitest-tests.yml
-│   ├── pytest-tests.yml
-│   ├── playwright-tests.yml
-│   ├── newman-tests.yml
+│   ├── frontend-unit-tests.yml
+│   ├── backend-unit-integration-tests.yml
+│   ├── e2e-tests.yml
+│   ├── api-integration-tests.yml
 │   ├── build-and-test.yml
 │   └── deploy-reports.yml
 ├── backend/

@@ -1,4 +1,4 @@
-name: E2E Tests (Playwright)
+name: E2E Tests
 
 on:
   workflow_call:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   e2e-tests:
-    name: E2E Tests (Playwright)
+    name: E2E Tests
     runs-on: ubuntu-latest
 
     permissions:
