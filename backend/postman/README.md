@@ -128,7 +128,7 @@ newman run "backend/postman/Pet Tracker API.postman_collection.json" \
   --reporter-htmlextra-export newman-report.html
 ```
 
-Newman also runs automatically in CI via the `newman-tests.yml` GitHub Actions workflow. Results are available as workflow artifacts (JSON + HTML report) and in the GitHub Step Summary.
+Newman also runs automatically in CI via the `api-integration-tests.yml` GitHub Actions workflow. Results are available as workflow artifacts (JSON + HTML report) and in the GitHub Step Summary.
 
 
 ## Viewing Test Results
