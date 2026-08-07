@@ -1,4 +1,4 @@
-name: Backend Tests (pytest)
+name: Backend Unit & Integration Tests
 
 on:
   workflow_call:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   backend-tests:
-    name: Backend Tests (pytest)
+    name: Backend Unit & Integration Tests
     runs-on: ubuntu-latest
 
     permissions:
