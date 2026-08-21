@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { petAPI, buildPetFormData } from '../../services/api';
+import { sanitizeImagePreviewUrl } from '../../utils';
 import './AddPet.css';
 
 function EditPet() {
@@ -19,17 +20,6 @@ function EditPet() {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const [fetchLoading, setFetchLoading] = useState(true);
-
-    const sanitizeImagePreviewUrl = (url) => {
-        if (!url || typeof url !== 'string') return null;
-        try {
-            const parsed = new URL(url, window.location.origin);
-            const allowedProtocols = ['blob:', 'http:', 'https:'];
-            return allowedProtocols.includes(parsed.protocol) ? parsed.href : null;
-        } catch {
-            return null;
-        }
-    };
 
     const safePhotoPreview = sanitizeImagePreviewUrl(photoPreview);
 

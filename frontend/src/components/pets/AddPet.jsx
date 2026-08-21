@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { petAPI, buildPetFormData } from '../../services/api';
+import { sanitizeImagePreviewUrl } from '../../utils';
 import './AddPet.css';
 
 function AddPet() {
@@ -16,6 +17,8 @@ function AddPet() {
     const [photoPreview, setPhotoPreview] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    const safePhotoPreview = sanitizeImagePreviewUrl(photoPreview);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -160,9 +163,9 @@ function AddPet() {
                             accept="image/*"
                             onChange={handlePhotoChange}
                         />
-                        {photoPreview && (
+                        {safePhotoPreview && (
                             <img
-                                src={photoPreview}
+                                src={safePhotoPreview}
                                 alt="Pet preview"
                                 className="photo-preview"
                             />
