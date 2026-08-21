@@ -109,3 +109,32 @@
   cursor: not-allowed;
   box-shadow: none;
 }
+
+/* ===== Photo Upload ===== */
+.photo-upload input[type="file"] {
+  padding: var(--space-2);
+}
+
+.photo-preview {
+  max-width: 200px;
+  border-radius: var(--radius-md);
+  margin-top: var(--space-3);
+  display: block;
+}
+
+.remove-photo-button {
+  background: none;
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  margin-top: var(--space-2);
+  transition: all var(--transition-fast);
+}
+
+.remove-photo-button:hover {
+  background: var(--color-danger);
+  color: white;
+}

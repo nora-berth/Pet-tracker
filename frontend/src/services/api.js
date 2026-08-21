@@ -49,12 +49,23 @@ export const authAPI = {
   getProfile: () => api.get('/auth/profile/'),
 };
 
+// Helper to build FormData from pet data with optional photo
+export function buildPetFormData(data) {
+  const formData = new FormData();
+  Object.entries(data).forEach(([key, value]) => {
+    if (value !== null && value !== undefined) {
+      formData.append(key, value);
+    }
+  });
+  return formData;
+}
+
 // Pet API
 export const petAPI = {
   getAll: () => api.get('/pets/'),
   getOne: (id) => api.get(`/pets/${id}/`),
-  create: (data) => api.post('/pets/', data),
-  update: (id, data) => api.put(`/pets/${id}/`, data),
+  create: (data) => api.post('/pets/', data, data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {}),
+  update: (id, data) => api.put(`/pets/${id}/`, data, data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {}),
   delete: (id) => api.delete(`/pets/${id}/`),
 };
 

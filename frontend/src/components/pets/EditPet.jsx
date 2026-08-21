@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { petAPI } from '../../services/api';
+import { petAPI, buildPetFormData } from '../../services/api';
 import './AddPet.css';
 
 function EditPet() {
@@ -13,6 +13,9 @@ function EditPet() {
         birth_date: '',
         notes: '',
     });
+    const [photo, setPhoto] = useState(null);
+    const [photoPreview, setPhotoPreview] = useState(null);
+    const [removePhoto, setRemovePhoto] = useState(false);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const [fetchLoading, setFetchLoading] = useState(true);
@@ -32,6 +35,9 @@ function EditPet() {
                 birth_date: pet.birth_date || '',
                 notes: pet.notes || '',
             });
+            if (pet.photo) {
+                setPhotoPreview(`http://localhost:8000${pet.photo}`);
+            }
         } catch (err) {
             setError('Failed to load pet data');
             console.error('Error fetching pet:', err);
@@ -48,6 +54,21 @@ function EditPet() {
         }));
     };
 
+    const handlePhotoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setPhoto(file);
+            setPhotoPreview(URL.createObjectURL(file));
+            setRemovePhoto(false);
+        }
+    };
+
+    const handleRemovePhoto = () => {
+        setPhoto(null);
+        setPhotoPreview(null);
+        setRemovePhoto(true);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -61,7 +82,15 @@ function EditPet() {
                 }
             });
 
-            await petAPI.update(id, dataToSend);
+            if (photo) {
+                dataToSend.photo = photo;
+            } else if (removePhoto) {
+                dataToSend.photo = '';
+            }
+
+            const useFormData = photo || removePhoto;
+            const payload = useFormData ? buildPetFormData(dataToSend) : dataToSend;
+            await petAPI.update(id, payload);
             navigate(`/pets/${id}`);
         } catch (err) {
             setError('Failed to update pet. Please try again.');
@@ -109,7 +138,7 @@ function EditPet() {
                             <option value="cat">Cat</option>
                             <option value="ferret">Ferret</option>
                             <option value="tortoise">Tortoise</option>
-                            <option value="rabbit">Rabbit</option>  
+                            <option value="rabbit">Rabbit</option>
                             <option value="bird">Bird</option>
                             <option value="hamster">Hamster</option>
                             <option value="guinea_pig">Guinea Pig</option>
@@ -138,6 +167,33 @@ function EditPet() {
                             value={formData.birth_date}
                             onChange={handleChange}
                         />
+                    </div>
+
+                    <div className="form-group photo-upload">
+                        <label htmlFor="photo">Photo</label>
+                        <input
+                            type="file"
+                            id="photo"
+                            name="photo"
+                            accept="image/*"
+                            onChange={handlePhotoChange}
+                        />
+                        {photoPreview && (
+                            <div>
+                                <img
+                                    src={photoPreview}
+                                    alt="Pet preview"
+                                    className="photo-preview"
+                                />
+                                <button
+                                    type="button"
+                                    className="remove-photo-button"
+                                    onClick={handleRemovePhoto}
+                                >
+                                    Remove photo
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     <div className="form-group">
