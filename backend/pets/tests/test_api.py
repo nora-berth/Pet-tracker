@@ -1,12 +1,26 @@
+import io
 import pytest
+from PIL import Image
 from rest_framework.test import APIClient
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from datetime import date
 from decimal import Decimal
 from pets.models import Pet, WeightRecord, Vaccination, VetVisit, PetShare
+
+
+def _create_test_image(fmt="JPEG", size=(10, 10)):
+    """Create a valid in-memory image file for testing."""
+    buf = io.BytesIO()
+    img = Image.new("RGB", size, color="red")
+    img.save(buf, format=fmt)
+    buf.seek(0)
+    ext = fmt.lower()
+    ct = {"JPEG": "image/jpeg", "PNG": "image/png", "WEBP": "image/webp", "GIF": "image/gif"}
+    return SimpleUploadedFile(f"test.{ext}", buf.read(), content_type=ct[fmt])
 
 pytestmark = [pytest.mark.django_db]
 
@@ -1121,3 +1135,99 @@ class TestEditorPermissions:
 
         # Assert
         assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+class TestPetPhotoAPI:
+    """Test photo upload via /api/pets/ endpoint"""
+
+    def test_create_pet_with_photo(self, authenticated_client):
+        # Arrange
+        photo = _create_test_image("JPEG")
+
+        # Act
+        url = reverse("pet-list")
+        response = authenticated_client.post(
+            url,
+            {"name": "PhotoPet", "species": "dog", "photo": photo},
+            format="multipart",
+        )
+
+        # Assert
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data["photo"] is not None
+        assert "pet_photos" in response.data["photo"]
+
+        pet = Pet.objects.get(id=response.data["id"])
+        assert pet.photo.name.startswith("pet_photos/")
+
+    def test_update_pet_photo(self, authenticated_client):
+        # Arrange
+        pet = Pet.objects.create(
+            name="Buddy", species="dog", owner=authenticated_client.user
+        )
+        photo = _create_test_image("PNG")
+
+        # Act
+        url = reverse("pet-detail", kwargs={"pk": pet.id})
+        response = authenticated_client.patch(
+            url,
+            {"photo": photo},
+            format="multipart",
+        )
+
+        # Assert
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["photo"] is not None
+
+        pet.refresh_from_db()
+        assert pet.photo.name.startswith("pet_photos/")
+
+    def test_create_pet_without_photo(self, authenticated_client):
+        # Arrange
+        data = {"name": "NoPhotoPet", "species": "cat"}
+
+        # Act
+        url = reverse("pet-list")
+        response = authenticated_client.post(url, data, format="json")
+
+        # Assert
+        assert response.status_code == status.HTTP_201_CREATED
+        assert not response.data["photo"]
+
+    def test_upload_oversized_photo_rejected(self, authenticated_client):
+        # Arrange — create a valid JPEG then pad it beyond 5 MB
+        buf = io.BytesIO()
+        img = Image.new("RGB", (10, 10), color="red")
+        img.save(buf, format="JPEG")
+        content = buf.getvalue() + b"\x00" * (6 * 1024 * 1024)
+        photo = SimpleUploadedFile("big.jpg", content, content_type="image/jpeg")
+
+        # Act
+        url = reverse("pet-list")
+        response = authenticated_client.post(
+            url,
+            {"name": "BigPhotoPet", "species": "dog", "photo": photo},
+            format="multipart",
+        )
+
+        # Assert
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_upload_invalid_file_type_rejected(self, authenticated_client):
+        # Arrange
+        text_file = SimpleUploadedFile(
+            "notes.txt",
+            b"This is not an image",
+            content_type="text/plain",
+        )
+
+        # Act
+        url = reverse("pet-list")
+        response = authenticated_client.post(
+            url,
+            {"name": "TextPet", "species": "dog", "photo": text_file},
+            format="multipart",
+        )
+
+        # Assert
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
