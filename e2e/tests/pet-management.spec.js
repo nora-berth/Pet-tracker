@@ -1,9 +1,14 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { test, expect } from '../fixtures/pet-fixtures.js';
 import { createPetViaAPI, deleteAllPetsViaAPI } from '../helpers/api-helpers.js';
 import * as allure from 'allure-js-commons';
 import { Severity } from 'allure-js-commons';
 import { HomePage } from '../pages/home.page.js';
 import { PetDetailPage } from '../pages/pet-detail.page.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const TEST_PHOTO_PATH = path.resolve(__dirname, '..', 'fixtures', 'test-photo.png');
 
 test.describe('Pet Management', () => {
   test.beforeEach(async ({ testUser }) => {
@@ -125,6 +130,39 @@ test.describe('Pet Management', () => {
     await test.step('Verify pet is deleted', async () => {
       await expect(homePage.myPetsHeading).toBeVisible();
       await expect(homePage.petText(testPet.name)).not.toBeVisible();
+    });
+  });
+
+  test('can add a pet with photo', async ({ authenticatedPage: page }) => {
+    await allure.feature('Pet Management');
+    await allure.story('Add Pet with Photo');
+    await allure.severity(Severity.NORMAL);
+
+    const homePage = new HomePage(page);
+    const petDetailPage = new PetDetailPage(page);
+    const petName = `PhotoPet_${Date.now()}`;
+
+    await test.step('Navigate to home page', async () => {
+      await homePage.goto();
+    });
+
+    await test.step('Fill in pet details with photo and submit', async () => {
+      await homePage.addPet({
+        name: petName,
+        species: 'cat',
+        photoPath: TEST_PHOTO_PATH,
+      });
+    });
+
+    await test.step('Verify pet is added and navigate to details', async () => {
+      await expect(homePage.myPetsHeading).toBeVisible();
+      await expect(homePage.petText(petName)).toBeVisible();
+      await homePage.clickPet(petName);
+    });
+
+    await test.step('Verify photo is displayed on pet detail page', async () => {
+      await expect(petDetailPage.petNameHeading(petName)).toBeVisible();
+      await expect(petDetailPage.petPhoto(petName)).toBeVisible();
     });
   });
 });
