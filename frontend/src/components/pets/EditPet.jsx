@@ -36,7 +36,7 @@ function EditPet() {
                 notes: pet.notes || '',
             });
             if (pet.photo) {
-                setPhotoPreview(`http://localhost:8000${pet.photo}`);
+                setPhotoPreview(pet.photo);
             }
         } catch (err) {
             setError('Failed to load pet data');
