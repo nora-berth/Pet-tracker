@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { petAPI, buildPetFormData } from '../../services/api';
 import './AddPet.css';
@@ -28,10 +28,33 @@ function AddPet() {
     const handlePhotoChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                setError('Invalid photo format. Please upload a PNG, JPEG, GIF, or WebP image.');
+                setPhoto(null);
+                if (photoPreview) {
+                    URL.revokeObjectURL(photoPreview);
+                }
+                setPhotoPreview(null);
+                return;
+            }
+
+            setError(null);
             setPhoto(file);
+            if (photoPreview) {
+                URL.revokeObjectURL(photoPreview);
+            }
             setPhotoPreview(URL.createObjectURL(file));
         }
     };
+
+    useEffect(() => {
+        return () => {
+            if (photoPreview) {
+                URL.revokeObjectURL(photoPreview);
+            }
+        };
+    }, [photoPreview]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
