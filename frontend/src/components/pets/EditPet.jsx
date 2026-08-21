@@ -20,6 +20,19 @@ function EditPet() {
     const [loading, setLoading] = useState(false);
     const [fetchLoading, setFetchLoading] = useState(true);
 
+    const sanitizeImagePreviewUrl = (url) => {
+        if (!url || typeof url !== 'string') return null;
+        try {
+            const parsed = new URL(url, window.location.origin);
+            const allowedProtocols = ['blob:', 'http:', 'https:'];
+            return allowedProtocols.includes(parsed.protocol) ? parsed.href : null;
+        } catch {
+            return null;
+        }
+    };
+
+    const safePhotoPreview = sanitizeImagePreviewUrl(photoPreview);
+
     useEffect(() => {
         fetchPet();
     }, [id]);
@@ -36,7 +49,7 @@ function EditPet() {
                 notes: pet.notes || '',
             });
             if (pet.photo) {
-                setPhotoPreview(pet.photo);
+                setPhotoPreview(sanitizeImagePreviewUrl(pet.photo));
             }
         } catch (err) {
             setError('Failed to load pet data');
@@ -58,7 +71,8 @@ function EditPet() {
         const file = e.target.files[0];
         if (file) {
             setPhoto(file);
-            setPhotoPreview(URL.createObjectURL(file));
+            const objectUrl = URL.createObjectURL(file);
+            setPhotoPreview(sanitizeImagePreviewUrl(objectUrl));
             setRemovePhoto(false);
         }
     };
@@ -178,10 +192,10 @@ function EditPet() {
                             accept="image/*"
                             onChange={handlePhotoChange}
                         />
-                        {photoPreview && (
+                        {safePhotoPreview && (
                             <div>
                                 <img
-                                    src={photoPreview}
+                                    src={safePhotoPreview}
                                     alt="Pet preview"
                                     className="photo-preview"
                                 />
