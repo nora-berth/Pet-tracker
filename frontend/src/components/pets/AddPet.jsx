@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { petAPI } from '../../services/api';
+import { petAPI, buildPetFormData } from '../../services/api';
+import { sanitizeImagePreviewUrl } from '../../utils';
 import './AddPet.css';
 
 function AddPet() {
@@ -12,8 +13,12 @@ function AddPet() {
         birth_date: '',
         notes: '',
     });
+    const [photo, setPhoto] = useState(null);
+    const [photoPreview, setPhotoPreview] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    const safePhotoPreview = sanitizeImagePreviewUrl(photoPreview);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -23,13 +28,43 @@ function AddPet() {
         }));
     };
 
+    const handlePhotoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                setError('Invalid photo format. Please upload a PNG, JPEG, GIF, or WebP image.');
+                setPhoto(null);
+                if (photoPreview) {
+                    URL.revokeObjectURL(photoPreview);
+                }
+                setPhotoPreview(null);
+                return;
+            }
+
+            setError(null);
+            setPhoto(file);
+            if (photoPreview) {
+                URL.revokeObjectURL(photoPreview);
+            }
+            setPhotoPreview(URL.createObjectURL(file));
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            if (photoPreview) {
+                URL.revokeObjectURL(photoPreview);
+            }
+        };
+    }, [photoPreview]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
         try {
-            // Only send non-empty fields
             const dataToSend = {};
             Object.keys(formData).forEach(key => {
                 if (formData[key]) {
@@ -37,7 +72,12 @@ function AddPet() {
                 }
             });
 
-            await petAPI.create(dataToSend);
+            if (photo) {
+                dataToSend.photo = photo;
+            }
+
+            const payload = photo ? buildPetFormData(dataToSend) : dataToSend;
+            await petAPI.create(payload);
             navigate('/');
         } catch (err) {
             setError('Failed to create pet. Please try again.');
@@ -83,7 +123,7 @@ function AddPet() {
                             <option value="cat">Cat</option>
                             <option value="ferret">Ferret</option>
                             <option value="tortoise">Tortoise</option>
-                            <option value="rabbit">Rabbit</option>  
+                            <option value="rabbit">Rabbit</option>
                             <option value="bird">Bird</option>
                             <option value="hamster">Hamster</option>
                             <option value="guinea_pig">Guinea Pig</option>
@@ -112,6 +152,24 @@ function AddPet() {
                             value={formData.birth_date}
                             onChange={handleChange}
                         />
+                    </div>
+
+                    <div className="form-group photo-upload">
+                        <label htmlFor="photo">Photo</label>
+                        <input
+                            type="file"
+                            id="photo"
+                            name="photo"
+                            accept="image/*"
+                            onChange={handlePhotoChange}
+                        />
+                        {safePhotoPreview && (
+                            <img
+                                src={safePhotoPreview}
+                                alt="Pet preview"
+                                className="photo-preview"
+                            />
+                        )}
                     </div>
 
                     <div className="form-group">

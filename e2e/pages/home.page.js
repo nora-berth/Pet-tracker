@@ -11,6 +11,7 @@ export class HomePage {
     this.birthDateField = page.getByLabel('Birth Date');
     this.notesField = page.getByLabel('Notes');
     this.submitPetButton = page.getByRole('button', { name: 'Add Pet', exact: true });
+    this.photoInput = page.getByLabel('Photo');
     this.emptyStateText = page.getByText(/No pets yet/i);
 
     this.petHeading = (name) => page.getByRole('heading', { name }).first();
@@ -21,12 +22,13 @@ export class HomePage {
     await this.page.goto('/');
   }
 
-  async addPet({ name, species, breed, birthDate, notes }) {
+  async addPet({ name, species, breed, birthDate, notes, photoPath }) {
     await this.addPetButton.click();
     await this.nameField.fill(name);
     await this.speciesField.selectOption(species);
     if (breed !== undefined) await this.breedField.fill(breed);
     if (birthDate !== undefined) await this.birthDateField.fill(birthDate);
+    if (photoPath !== undefined) await this.photoInput.setInputFiles(photoPath);
     if (notes !== undefined) await this.notesField.fill(notes);
     await this.submitPetButton.click();
   }

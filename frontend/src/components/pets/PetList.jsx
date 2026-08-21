@@ -51,7 +51,7 @@ function PetList() {
                             style={{ cursor: 'pointer' }}>
                             {pet.photo && (
                                 <img
-                                    src={`http://localhost:8000${pet.photo}`}
+                                    src={pet.photo}
                                     alt={pet.name}
                                     className="pet-photo"
                                 />

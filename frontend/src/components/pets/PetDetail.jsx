@@ -141,7 +141,7 @@ function PetDetail() {
             <div className="pet-header">
                 {pet.photo && (
                     <img
-                        src={`http://localhost:8000${pet.photo}`}
+                        src={pet.photo}
                         alt={pet.name}
                         className="pet-photo-large"
                     />
