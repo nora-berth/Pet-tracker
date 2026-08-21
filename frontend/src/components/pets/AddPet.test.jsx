@@ -9,6 +9,7 @@ describe('AddPet Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     globalThis.URL.createObjectURL = vi.fn(() => 'blob:http://localhost/fake-url');
+    globalThis.URL.revokeObjectURL = vi.fn();
   });
 
   it('renders the form with all fields', () => {

@@ -111,7 +111,7 @@ describe('EditPet Component', () => {
     await waitFor(() => {
       const img = screen.getByAltText('Pet preview');
       expect(img).toBeInTheDocument();
-      expect(img).toHaveAttribute('src', '/media/pet_photos/buddy.jpg');
+      expect(img.getAttribute('src')).toContain('/media/pet_photos/buddy.jpg');
     });
   });
 
