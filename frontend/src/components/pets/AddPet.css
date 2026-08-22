@@ -9,25 +9,26 @@
   background: var(--color-surface);
   padding: var(--space-8);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
+  border: 1.5px solid var(--color-border);
+  border-top: 3px solid var(--color-primary);
   box-shadow: var(--shadow-sm);
 }
 
 .form-container h1 {
+  font-family: var(--font-display);
   font-size: var(--text-2xl);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--color-text);
-  letter-spacing: -0.02em;
   margin: 0 0 var(--space-8) 0;
 }
 
 /* ===== Error Message ===== */
 .error-message {
-  background: #fef2f2;
+  background: var(--ink-red-soft);
   color: var(--color-danger);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
-  border: 1px solid #fecaca;
+  border: 1.5px solid #e3b3ab;
   margin-bottom: var(--space-6);
   font-size: var(--text-sm);
   font-weight: 500;
@@ -56,7 +57,7 @@
   font-size: var(--text-base);
   font-family: inherit;
   color: var(--color-text);
-  background: var(--color-surface);
+  background: var(--color-background);
   transition: all var(--transition-fast);
 }
 
@@ -82,7 +83,7 @@
 .submit-button {
   width: 100%;
   background: var(--color-primary);
-  color: white;
+  color: var(--color-surface);
   border: none;
   padding: var(--space-3) var(--space-6);
   border-radius: var(--radius-md);
@@ -90,13 +91,13 @@
   font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-fast);
-  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: var(--shadow-sm);
   margin-top: var(--space-4);
 }
 
 .submit-button:hover:not(:disabled) {
   background: var(--color-primary-hover);
-  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }
 
@@ -113,6 +114,7 @@
 /* ===== Photo Upload ===== */
 .photo-upload input[type="file"] {
   padding: var(--space-2);
+  font-size: var(--text-sm);
 }
 
 .photo-preview {
@@ -120,11 +122,12 @@
   border-radius: var(--radius-md);
   margin-top: var(--space-3);
   display: block;
+  filter: sepia(8%);
 }
 
 .remove-photo-button {
   background: none;
-  border: 1px solid var(--color-danger);
+  border: 1.5px solid var(--color-danger);
   color: var(--color-danger);
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-md);
@@ -136,5 +139,5 @@
 
 .remove-photo-button:hover {
   background: var(--color-danger);
-  color: white;
+  color: var(--color-surface);
 }
