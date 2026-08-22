@@ -2,8 +2,7 @@
 
 Pet Tracker is a full-stack Django + React app for managing pet health records (pets, weight, vaccinations, vet visits). This is a QA portfolio project — testing quality is paramount.
 
-This is the source of truth for project conventions, for any coding agent including Claude Code —
-`CLAUDE.md` just points here rather than duplicating it.
+This is the source of truth for project conventions, for any coding agent.
 
 ## Rules
 
@@ -64,10 +63,8 @@ newman run "backend/postman/Pet Tracker API.postman_collection.json" \
 ### E2E (Playwright)
 - Full conventions — Page Object Model, selector rules, fixture/cleanup patterns, and Allure
   annotation rules — live in [`.claude/skills/playwright-e2e/SKILL.md`](.claude/skills/playwright-e2e/SKILL.md).
-  It's plain markdown, not a Claude-specific format — read it before writing or editing any E2E
-  test regardless of which agent you are. It also carries page-object/spec templates under
-  `.claude/skills/playwright-e2e/assets/`. (Not `@`-imported here on purpose: unlike this file,
-  a skill is meant to load only when the task actually calls for it, not on every session.)
+  Read it before writing or editing any E2E test. It also carries page-object/spec templates under
+  `.claude/skills/playwright-e2e/assets/`.
 - Allure reports are for E2E only and deploy to GitHub Pages in CI
 
 ### API Tests (Postman/Newman)
@@ -82,7 +79,6 @@ newman run "backend/postman/Pet Tracker API.postman_collection.json" \
 - Foreign keys use CASCADE delete — deleting a pet removes all its records
 - Related records are filterable by `?pet=<id>`
 - Frontend: React 19 + Vite + React Router; all API calls go through `frontend/src/services/api.js`
-- Species choices: dog, cat, ferret, tortoise, rabbit, bird, hamster, guinea_pig, snake, other
 
 ## Pitfalls
 

@@ -1,15 +1,12 @@
 ---
 name: playwright-e2e
-description: Write, extend, or run Playwright end-to-end tests for the Pet Tracker app's e2e/ directory. Use this whenever the task involves E2E tests, UI/browser test coverage, a Playwright spec file, a page object under e2e/pages/, test fixtures under e2e/fixtures/, Allure reporting/severity, or running `npx playwright test`. Trigger even if the user just says "add a test for X" or "cover this flow" without naming Playwright explicitly, as long as the flow is a browser/UI flow. These instructions are plain, tool-agnostic markdown — follow them with whatever file-editing and shell-command capabilities are available to you; nothing here depends on a specific coding agent or IDE.
+description: Write, extend, or run Playwright end-to-end tests for the Pet Tracker app's e2e/ directory. Use this whenever the task involves E2E tests, UI/browser test coverage, a Playwright spec file, a page object under e2e/pages/, test fixtures under e2e/fixtures/, Allure reporting/severity, or running `npx playwright test`. Trigger even if the user just says "add a test for X" or "cover this flow" without naming Playwright explicitly, as long as the flow is a browser/UI flow.
 ---
 
 # Playwright E2E tests (Pet Tracker)
 
 This skill encodes how E2E tests are written in this repo's `e2e/` directory: Page Object
-Model, Allure reporting, accessibility-first selectors, and fixture-based test data. The
-instructions below are plain markdown with no Claude-specific tool references — any agent or
-human can follow them, and this file is also linked directly from the root
-[`AGENTS.md`](../../../AGENTS.md) so agents without a native "skills" concept can find it too.
+Model, Allure reporting, accessibility-first selectors, and fixture-based test data.
 
 Read this whole file before writing a test — the conventions interlock (fixtures feed page
 objects, page objects feed specs, specs drive Allure output) and skipping one breaks the others.
@@ -151,8 +148,6 @@ import { Severity } from 'allure-js-commons';
       body
 - [ ] `allure.epic/feature/story/severity` are set, and severity reflects actual criticality
 - [ ] Each logical phase of the test is wrapped in `test.step(...)`
-- [ ] Per the root [`AGENTS.md`](../../../AGENTS.md): a UI feature isn't done with just an E2E
-      test — check whether it also needs model-layer and API-layer tests in `backend/pets/tests/`
 
 ## Reference files
 
