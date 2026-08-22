@@ -1,5 +1,6 @@
 import { test, expect } from '../fixtures/auth-fixtures.js';
-import { allure } from 'allure-playwright';
+import * as allure from 'allure-js-commons';
+import { Severity } from 'allure-js-commons';
 import { LoginPage } from '../pages/login.page.js';
 import { SignupPage } from '../pages/signup.page.js';
 import { NavComponent } from '../pages/nav.component.js';
@@ -11,7 +12,7 @@ test.describe('Authentication Flow', () => {
   });
 
   test('redirects unauthenticated users to login page', async ({ page }) => {
-    await allure.severity('blocker');
+    await allure.severity(Severity.BLOCKER);
     await allure.description('Verify that unauthenticated users are redirected to login page');
 
     const loginPage = new LoginPage(page);
@@ -27,7 +28,7 @@ test.describe('Authentication Flow', () => {
   });
 
   test('allows user to sign up with valid credentials', async ({ page }) => {
-    await allure.severity('blocker');
+    await allure.severity(Severity.BLOCKER);
     await allure.description('Test user registration with valid data');
 
     const timestamp = Date.now();
@@ -59,7 +60,7 @@ test.describe('Authentication Flow', () => {
   });
 
   test('shows validation errors for invalid signup data', async ({ page }) => {
-    await allure.severity('normal');
+    await allure.severity(Severity.NORMAL);
     await allure.description('Test validation errors during registration');
 
     const signupPage = new SignupPage(page);
@@ -83,7 +84,7 @@ test.describe('Authentication Flow', () => {
   });
 
   test('allows user to login with valid credentials', async ({ page, testUser }) => {
-    await allure.severity('blocker');
+    await allure.severity(Severity.BLOCKER);
     await allure.description('Test user login with valid credentials');
 
     const loginPage = new LoginPage(page);
@@ -106,7 +107,7 @@ test.describe('Authentication Flow', () => {
   });
 
   test('shows error message for invalid login credentials', async ({ page }) => {
-    await allure.severity('critical');
+    await allure.severity(Severity.CRITICAL);
     await allure.description('Test error handling for invalid login credentials');
 
     const loginPage = new LoginPage(page);
@@ -129,7 +130,7 @@ test.describe('Authentication Flow', () => {
   });
 
   test('allows user to logout', async ({ page, testUser }) => {
-    await allure.severity('blocker');
+    await allure.severity(Severity.BLOCKER);
     await allure.description('Test user logout functionality');
 
     const loginPage = new LoginPage(page);
@@ -157,7 +158,7 @@ test.describe('Authentication Flow', () => {
   });
 
   test('persists authentication across page refreshes', async ({ page, testUser }) => {
-    await allure.severity('critical');
+    await allure.severity(Severity.CRITICAL);
     await allure.description('Test that authentication persists after page refresh');
 
     const loginPage = new LoginPage(page);
@@ -181,7 +182,7 @@ test.describe('Authentication Flow', () => {
   });
 
   test('navigates between login and signup pages', async ({ page }) => {
-    await allure.severity('normal');
+    await allure.severity(Severity.NORMAL);
     await allure.description('Test navigation between login and signup pages');
 
     const loginPage = new LoginPage(page);
@@ -214,7 +215,7 @@ test.describe('Authentication Flow', () => {
 
 test.describe('Multi-Tenancy', () => {
   test('users can only see their own pets', async ({ page, context }) => {
-    await allure.severity('blocker');
+    await allure.severity(Severity.BLOCKER);
     await allure.description('Test that users can only see their own pets (multi-tenancy)');
 
     const signupPage = new SignupPage(page);
