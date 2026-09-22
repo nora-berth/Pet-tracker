@@ -204,7 +204,7 @@ test.describe('Complete User Journey (Happy Path)', () => {
       await homePage.clickPet(petName);
 
       await expect(petDetailPage.petNameHeading(petName)).toBeVisible();
-      await expect(page.getByText(species)).toBeVisible();
+      await expect(page.getByText(species, { exact: true })).toBeVisible();
       await expect(page.getByText(breed)).toBeVisible();
       await expect(page.getByText(`Born: ${new Date(birthDate).toLocaleDateString()}`)).toBeVisible();
       await expect(page.getByText('Complete flow test cat')).toBeVisible();
