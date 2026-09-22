@@ -39,7 +39,7 @@ describe('PetDetail Component', () => {
       id: 1,
       name: 'Buddy',
       species: 'dog',
-      breed: 'Labradourr',
+      breed: 'Labrador',
       birth_date: '2020-05-15',
       notes: 'Friendly dog',
       weight_records: [],
