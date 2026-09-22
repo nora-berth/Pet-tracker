@@ -47,7 +47,7 @@ test.describe('Pet Management', () => {
       await homePage.addPet({
         name: petName,
         species: 'dog',
-        breed: 'Golden Retriever',
+        breed: 'Golden Retriever good boy',
         birthDate: '2020-01-15',
       });
     });
