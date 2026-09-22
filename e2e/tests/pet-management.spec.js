@@ -38,23 +38,24 @@ test.describe('Pet Management', () => {
 
     const homePage = new HomePage(page);
     const petName = `UICreatedPet_${Date.now()}`;
+    const species = 'dog';
+    const breed = 'Golden Retriever';
+    const birthDate = '2020-01-15';
 
     await test.step('Navigate to home page', async () => {
       await homePage.goto();
     });
 
     await test.step('Fill in pet details and submit', async () => {
-      await homePage.addPet({
-        name: petName,
-        species: 'dog',
-        breed: 'Golden Retriever',
-        birthDate: '2020-01-15',
-      });
+      await homePage.addPet({ name: petName, species, breed, birthDate });
     });
 
-    await test.step('Verify pet is added', async () => {
+    await test.step('Verify pet is added with correct details', async () => {
       await expect(homePage.myPetsHeading).toBeVisible();
       await expect(homePage.petText(petName)).toBeVisible();
+      await expect(page.getByText(species)).toBeVisible();
+      await expect(page.getByText(breed)).toBeVisible();
+      await expect(page.getByText(`Born: ${new Date(birthDate).toLocaleDateString()}`)).toBeVisible();
     });
   });
 
@@ -141,6 +142,7 @@ test.describe('Pet Management', () => {
     const homePage = new HomePage(page);
     const petDetailPage = new PetDetailPage(page);
     const petName = `PhotoPet_${Date.now()}`;
+    const species = 'cat';
 
     await test.step('Navigate to home page', async () => {
       await homePage.goto();
@@ -149,7 +151,7 @@ test.describe('Pet Management', () => {
     await test.step('Fill in pet details with photo and submit', async () => {
       await homePage.addPet({
         name: petName,
-        species: 'cat',
+        species,
         photoPath: TEST_PHOTO_PATH,
       });
     });
@@ -157,6 +159,7 @@ test.describe('Pet Management', () => {
     await test.step('Verify pet is added and navigate to details', async () => {
       await expect(homePage.myPetsHeading).toBeVisible();
       await expect(homePage.petText(petName)).toBeVisible();
+      await expect(page.getByText(species)).toBeVisible();
       await homePage.clickPet(petName);
     });
 
@@ -181,14 +184,17 @@ test.describe('Complete User Journey (Happy Path)', () => {
     const homePage = new HomePage(page);
     const petDetailPage = new PetDetailPage(page);
     const petName = `FlowTestPet_${Date.now()}`;
+    const species = 'cat';
+    const breed = 'Persian';
+    const birthDate = '2020-01-15';
 
     await test.step('Add a new pet', async () => {
       await homePage.goto();
       await homePage.addPet({
         name: petName,
-        species: 'cat',
-        breed: 'Persian',
-        birthDate: '2020-01-15',
+        species,
+        breed,
+        birthDate,
         notes: 'Complete flow test cat',
       });
     });
@@ -198,7 +204,9 @@ test.describe('Complete User Journey (Happy Path)', () => {
       await homePage.clickPet(petName);
 
       await expect(petDetailPage.petNameHeading(petName)).toBeVisible();
-      await expect(page.getByText('Persian')).toBeVisible();
+      await expect(page.getByText(species, { exact: true })).toBeVisible();
+      await expect(page.getByText(breed)).toBeVisible();
+      await expect(page.getByText(`Born: ${new Date(birthDate).toLocaleDateString()}`)).toBeVisible();
       await expect(page.getByText('Complete flow test cat')).toBeVisible();
     });
 
