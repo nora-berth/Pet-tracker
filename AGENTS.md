@@ -16,6 +16,18 @@ This is the source of truth for project conventions, for any coding agent.
 - CI/CD pipeline must pass before merging to main
 - Use conventional commit style: `feat:`, `fix:`, `test:`, `ci:`, `docs:`, `refactor:`
 
+## Agent Skills
+
+This repo carries a small collection of custom skills under `.claude/skills/` that encode
+project-specific workflows for any coding agent working here:
+
+- [`playwright-e2e`](.claude/skills/playwright-e2e/SKILL.md) — Page Object Model, selector,
+  fixture, and Allure conventions for writing or editing E2E tests. Triggers on any task touching
+  `e2e/`.
+- [`auto-fix`](.claude/skills/auto-fix/SKILL.md) — the full triage → root cause → fix → PR loop
+  for a failing test, with required user sign-off before code changes and before opening a PR.
+  Triggers when the ask is to root-cause and fix a red test/suite, not just run one.
+
 ## Commands
 
 ```bash
@@ -61,10 +73,8 @@ newman run "backend/postman/Pet Tracker API.postman_collection.json" \
 - Test user-visible behavior, not implementation details
 
 ### E2E (Playwright)
-- Full conventions — Page Object Model, selector rules, fixture/cleanup patterns, and Allure
-  annotation rules — live in [`.claude/skills/playwright-e2e/SKILL.md`](.claude/skills/playwright-e2e/SKILL.md).
-  Read it before writing or editing any E2E test. It also carries page-object/spec templates under
-  `.claude/skills/playwright-e2e/assets/`.
+- Full conventions live in the `playwright-e2e` skill (see Agent Skills above) — read it before
+  writing or editing any E2E test.
 - Allure reports are for E2E only and deploy to GitHub Pages in CI
 
 ### API Tests (Postman/Newman)
