@@ -5,6 +5,18 @@ from django.core.exceptions import ValidationError
 from decimal import Decimal
 
 
+def validate_image(file):
+    max_size = 5 * 1024 * 1024  # 5 MB
+    if file.size > max_size:
+        raise ValidationError("Image file size must be less than 5 MB.")
+
+    allowed_types = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+    if file.content_type not in allowed_types:
+        raise ValidationError(
+            "Unsupported image type. Allowed types: JPEG, PNG, WebP, GIF."
+        )
+
+
 class Pet(models.Model):
     SPECIES_CHOICES = [
         ('dog', 'Dog'),
@@ -24,7 +36,7 @@ class Pet(models.Model):
     species = models.CharField(max_length=20, choices=SPECIES_CHOICES)
     breed = models.CharField(max_length=100, blank=True)
     birth_date = models.DateField(null=True, blank=True)
-    photo = models.ImageField(upload_to='pet_photos/', null=True, blank=True)
+    photo = models.ImageField(upload_to='pet_photos/', null=True, blank=True, validators=[validate_image])
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

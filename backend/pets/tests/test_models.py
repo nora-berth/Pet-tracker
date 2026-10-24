@@ -1,8 +1,21 @@
+import io
 import pytest
+from PIL import Image
 from datetime import date
 from decimal import Decimal
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from pets.models import Pet, WeightRecord, Vaccination, VetVisit, PetShare
+
+
+def _make_image(fmt="JPEG"):
+    """Create a valid in-memory image file for testing."""
+    buf = io.BytesIO()
+    Image.new("RGB", (10, 10), color="red").save(buf, format=fmt)
+    buf.seek(0)
+    ext = fmt.lower()
+    ct = {"JPEG": "image/jpeg", "PNG": "image/png"}
+    return SimpleUploadedFile(f"test.{ext}", buf.read(), content_type=ct[fmt])
 
 
 @pytest.mark.django_db
@@ -284,3 +297,35 @@ class TestPetShareModel:
         share = PetShare(pet=pet, shared_with=owner, role="viewer")
         with pytest.raises(ValidationError):
             share.clean()
+
+
+@pytest.mark.django_db
+class TestPetPhotoModel:
+
+    def test_pet_create_with_photo(self):
+        # Arrange
+        photo = _make_image("JPEG")
+
+        # Act
+        pet = Pet.objects.create(name="PhotoPet", species="dog", photo=photo)
+
+        # Assert
+        assert pet.photo is not None
+        assert pet.photo.name != ""
+
+    def test_pet_photo_is_optional(self):
+        # Arrange & Act
+        pet = Pet.objects.create(name="NoPhotoPet", species="cat")
+
+        # Assert
+        assert not pet.photo
+
+    def test_pet_photo_upload_path(self):
+        # Arrange
+        photo = _make_image("PNG")
+
+        # Act
+        pet = Pet.objects.create(name="PathPet", species="dog", photo=photo)
+
+        # Assert
+        assert pet.photo.name.startswith("pet_photos/")

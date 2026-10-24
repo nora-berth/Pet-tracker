@@ -27,6 +27,7 @@ const mockPet = {
 describe('EditPet Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    globalThis.URL.createObjectURL = vi.fn(() => 'blob:http://localhost/fake-url');
   });
 
   it('shows loading state while fetching pet', () => {
@@ -95,6 +96,51 @@ describe('EditPet Component', () => {
     // Assert
     await waitFor(() => {
       expect(screen.getByText(/failed to load pet data/i)).toBeInTheDocument();
+    });
+  });
+
+  it('displays existing photo preview', async () => {
+    // Arrange
+    const petWithPhoto = { ...mockPet, photo: '/media/pet_photos/buddy.jpg' };
+    vi.spyOn(api.petAPI, 'getOne').mockResolvedValue({ data: petWithPhoto });
+
+    // Act
+    renderWithRouter();
+
+    // Assert
+    await waitFor(() => {
+      const img = screen.getByAltText('Pet preview');
+      expect(img).toBeInTheDocument();
+      expect(img.getAttribute('src')).toContain('/media/pet_photos/buddy.jpg');
+    });
+  });
+
+  it('submits updated photo', async () => {
+    // Arrange
+    vi.spyOn(api.petAPI, 'getOne').mockResolvedValue({ data: mockPet });
+    vi.spyOn(api.petAPI, 'update').mockResolvedValue({
+      data: { ...mockPet, photo: '/media/pet_photos/new.jpg' },
+    });
+
+    const user = userEvent.setup();
+    const file = new File(['photo-content'], 'new.jpg', { type: 'image/jpeg' });
+
+    // Act
+    renderWithRouter();
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/name/i)).toHaveValue('Buddy');
+    });
+
+    await user.upload(screen.getByLabelText(/photo/i), file);
+    await user.click(screen.getByRole('button', { name: /update pet/i }));
+
+    // Assert
+    await waitFor(() => {
+      expect(api.petAPI.update).toHaveBeenCalled();
+      const callArg = api.petAPI.update.mock.calls[0][1];
+      expect(callArg).toBeInstanceOf(FormData);
+      expect(callArg.get('photo')).toBeInstanceOf(File);
     });
   });
 });

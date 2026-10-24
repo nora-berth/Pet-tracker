@@ -141,7 +141,7 @@ function PetDetail() {
             <div className="pet-header">
                 {pet.photo && (
                     <img
-                        src={`http://localhost:8000${pet.photo}`}
+                        src={pet.photo}
                         alt={pet.name}
                         className="pet-photo-large"
                     />
@@ -179,50 +179,6 @@ function PetDetail() {
                     )}
                 </div>
             </div>
-
-            {isOwner && (
-                <div className="sharing-section">
-                    <h2>Sharing</h2>
-                    <div className="share-form">
-                        <input
-                            type="text"
-                            placeholder="Username or email"
-                            value={shareInput}
-                            onChange={(e) => setShareInput(e.target.value)}
-                            aria-label="Username or email to share with"
-                        />
-                        <select
-                            value={shareRole}
-                            onChange={(e) => setShareRole(e.target.value)}
-                            aria-label="Share role"
-                        >
-                            <option value="viewer">Viewer</option>
-                            <option value="editor">Editor</option>
-                        </select>
-                        <button onClick={handleShare} className="share-button">
-                            Share
-                        </button>
-                    </div>
-                    {shareError && <p className="share-error">{shareError}</p>}
-                    {sharedUsers.length > 0 && (
-                        <ul className="shared-users-list">
-                            {sharedUsers.map(share => (
-                                <li key={share.id}>
-                                    <span>{share.shared_with_username}</span>
-                                    <span className="share-role-badge">{share.role}</span>
-                                    <button
-                                        onClick={() => handleUnshare(share.id)}
-                                        className="unshare-button"
-                                        aria-label={`Remove ${share.shared_with_username}`}
-                                    >
-                                        Remove
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-            )}
 
             <div className="records-section">
                 <div className="record-card">
@@ -347,6 +303,50 @@ function PetDetail() {
                     )}
                 </div>
             </div>
+
+            {isOwner && (
+                <div className="sharing-section">
+                    <h2>Sharing</h2>
+                    <div className="share-form">
+                        <input
+                            type="text"
+                            placeholder="Username or email"
+                            value={shareInput}
+                            onChange={(e) => setShareInput(e.target.value)}
+                            aria-label="Username or email to share with"
+                        />
+                        <select
+                            value={shareRole}
+                            onChange={(e) => setShareRole(e.target.value)}
+                            aria-label="Share role"
+                        >
+                            <option value="viewer">Viewer</option>
+                            <option value="editor">Editor</option>
+                        </select>
+                        <button onClick={handleShare} className="share-button">
+                            Share
+                        </button>
+                    </div>
+                    {shareError && <p className="share-error">{shareError}</p>}
+                    {sharedUsers.length > 0 && (
+                        <ul className="shared-users-list">
+                            {sharedUsers.map(share => (
+                                <li key={share.id}>
+                                    <span>{share.shared_with_username}</span>
+                                    <span className="share-role-badge">{share.role}</span>
+                                    <button
+                                        onClick={() => handleUnshare(share.id)}
+                                        className="unshare-button"
+                                        aria-label={`Remove ${share.shared_with_username}`}
+                                    >
+                                        Remove
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

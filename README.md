@@ -37,10 +37,27 @@ The **Build & Test** gate job requires all four to pass before the pipeline is g
 - **CI/CD**: GitHub Actions
 
 
+## Agent Skills
+
+Alongside the test suites themselves, this repo includes a small collection of custom agent
+skills under `.claude/skills/` that encode this project's own QA conventions for any coding
+agent working in it:
+
+- **`playwright-e2e`** — Page Object Model, accessibility-first selectors, fixture-based test
+  data, and Allure reporting conventions for E2E tests.
+- **`auto-fix`** — an end-to-end triage workflow for a failing test: reproduce it, root-cause it,
+  get explicit sign-off, implement the fix on a new branch, re-run the full suite, get a second
+  sign-off, then open the PR.
+
+
+
 ## Project Structure
 
 ```
 pet-tracker/
+├── .claude/skills/
+│   ├── playwright-e2e/
+│   └── auto-fix/
 ├── .github/workflows/
 │   ├── frontend-unit-tests.yml
 │   ├── backend-unit-integration-tests.yml

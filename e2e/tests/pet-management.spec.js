@@ -1,9 +1,14 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { test, expect } from '../fixtures/pet-fixtures.js';
 import { createPetViaAPI, deleteAllPetsViaAPI } from '../helpers/api-helpers.js';
 import * as allure from 'allure-js-commons';
 import { Severity } from 'allure-js-commons';
 import { HomePage } from '../pages/home.page.js';
 import { PetDetailPage } from '../pages/pet-detail.page.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const TEST_PHOTO_PATH = path.resolve(__dirname, '..', 'fixtures', 'test-photo.png');
 
 test.describe('Pet Management', () => {
   test.beforeEach(async ({ testUser }) => {
@@ -33,23 +38,24 @@ test.describe('Pet Management', () => {
 
     const homePage = new HomePage(page);
     const petName = `UICreatedPet_${Date.now()}`;
+    const species = 'dog';
+    const breed = 'Golden Retriever';
+    const birthDate = '2020-01-15';
 
     await test.step('Navigate to home page', async () => {
       await homePage.goto();
     });
 
     await test.step('Fill in pet details and submit', async () => {
-      await homePage.addPet({
-        name: petName,
-        species: 'dog',
-        breed: 'Golden Retriever',
-        birthDate: '2020-01-15',
-      });
+      await homePage.addPet({ name: petName, species, breed, birthDate });
     });
 
-    await test.step('Verify pet is added', async () => {
+    await test.step('Verify pet is added with correct details', async () => {
       await expect(homePage.myPetsHeading).toBeVisible();
       await expect(homePage.petText(petName)).toBeVisible();
+      await expect(page.getByText(species)).toBeVisible();
+      await expect(page.getByText(breed)).toBeVisible();
+      await expect(page.getByText(`Born: ${new Date(birthDate).toLocaleDateString()}`)).toBeVisible();
     });
   });
 
@@ -127,6 +133,41 @@ test.describe('Pet Management', () => {
       await expect(homePage.petText(testPet.name)).not.toBeVisible();
     });
   });
+
+  test('can add a pet with photo', async ({ authenticatedPage: page }) => {
+    await allure.feature('Pet Management');
+    await allure.story('Add Pet with Photo');
+    await allure.severity(Severity.NORMAL);
+
+    const homePage = new HomePage(page);
+    const petDetailPage = new PetDetailPage(page);
+    const petName = `PhotoPet_${Date.now()}`;
+    const species = 'cat';
+
+    await test.step('Navigate to home page', async () => {
+      await homePage.goto();
+    });
+
+    await test.step('Fill in pet details with photo and submit', async () => {
+      await homePage.addPet({
+        name: petName,
+        species,
+        photoPath: TEST_PHOTO_PATH,
+      });
+    });
+
+    await test.step('Verify pet is added and navigate to details', async () => {
+      await expect(homePage.myPetsHeading).toBeVisible();
+      await expect(homePage.petText(petName)).toBeVisible();
+      await expect(page.getByText(species)).toBeVisible();
+      await homePage.clickPet(petName);
+    });
+
+    await test.step('Verify photo is displayed on pet detail page', async () => {
+      await expect(petDetailPage.petNameHeading(petName)).toBeVisible();
+      await expect(petDetailPage.petPhoto(petName)).toBeVisible();
+    });
+  });
 });
 
 test.describe('Complete User Journey (Happy Path)', () => {
@@ -143,14 +184,17 @@ test.describe('Complete User Journey (Happy Path)', () => {
     const homePage = new HomePage(page);
     const petDetailPage = new PetDetailPage(page);
     const petName = `FlowTestPet_${Date.now()}`;
+    const species = 'cat';
+    const breed = 'Persian';
+    const birthDate = '2020-01-15';
 
     await test.step('Add a new pet', async () => {
       await homePage.goto();
       await homePage.addPet({
         name: petName,
-        species: 'cat',
-        breed: 'Persian',
-        birthDate: '2020-01-15',
+        species,
+        breed,
+        birthDate,
         notes: 'Complete flow test cat',
       });
     });
@@ -160,7 +204,9 @@ test.describe('Complete User Journey (Happy Path)', () => {
       await homePage.clickPet(petName);
 
       await expect(petDetailPage.petNameHeading(petName)).toBeVisible();
-      await expect(page.getByText('Persian')).toBeVisible();
+      await expect(page.getByText(species, { exact: true })).toBeVisible();
+      await expect(page.getByText(breed)).toBeVisible();
+      await expect(page.getByText(`Born: ${new Date(birthDate).toLocaleDateString()}`)).toBeVisible();
       await expect(page.getByText('Complete flow test cat')).toBeVisible();
     });
 

@@ -48,6 +48,7 @@ export class PetDetailPage {
 
     // Dynamic locators
     this.petNameHeading = (petName) => page.getByRole('heading', { name: petName, level: 1 });
+    this.petPhoto = (petName) => page.getByRole('img', { name: petName });
   }
 
   async goto(petId) {
