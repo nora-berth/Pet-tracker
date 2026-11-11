@@ -26,7 +26,8 @@ project-specific workflows for any coding agent working here:
   `e2e/`.
 - [`auto-fix`](.claude/skills/auto-fix/SKILL.md) — the full triage → root cause → fix → PR loop
   for a failing test, with required user sign-off before code changes and before opening a PR.
-  Triggers when the ask is to root-cause and fix a red test/suite, not just run one.
+  Triggers when the ask is to root-cause and fix a red test/suite, not just run one. Pass
+  `--unattended` to run it without human input (self-gates replace the sign-offs).
 
 ## Commands
 

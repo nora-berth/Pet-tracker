@@ -20,6 +20,14 @@
 
 <!-- Note any suite that was out of scope for this fix and why. -->
 
+<!-- Unattended runs only. Delete this section for interactive runs. -->
+## Opened unattended
+
+This PR was opened by the `auto-fix` skill running with `--unattended`. No human confirmed the
+root cause or reviewed the diff before it was opened. Classification: <app code / test code /
+environment>. <If draft: "Opened as a draft because the fix changes tests/config rather than
+app code. Please check the classification before marking it ready.">
+
 ---
 Scope: this PR contains only the fix for the failure described above — no additional test
 coverage, features, or unrelated refactors.
