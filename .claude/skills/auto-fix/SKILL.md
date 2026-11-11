@@ -1,6 +1,6 @@
 ---
 name: auto-fix
-description: Triage failing tests in Pet Tracker end-to-end — run the relevant test suite(s) (pytest/vitest/playwright), analyze the failure logs to find the root cause, get the user's explicit sign-off on that root cause, implement a fix on a new branch, re-run the full suite to rule out regressions, then get a second explicit sign-off before opening a GitHub PR. Use this whenever the user asks to "fix the failing tests," "figure out why CI/tests are red," "triage this test failure," or reports a specific broken test/spec and wants it root-caused and fixed end-to-end — not just for a one-off "run pytest" or "why did this test fail" question with no intent to ship a fix.
+description: Triage failing tests in Pet Tracker end-to-end — run the relevant test suite(s) (pytest/vitest/playwright), analyze the failure logs to find the root cause, get the user's explicit sign-off on that root cause, implement a fix on a new branch, re-run the full suite to rule out regressions, then get a second explicit sign-off before opening a GitHub PR. Pass `--unattended` to run the whole loop with no human input, using strict self-gates instead of the two sign-offs and stopping to report whenever a gate fails. Use this whenever the user asks to "fix the failing tests," "figure out why CI/tests are red," "triage this test failure," or reports a specific broken test/spec and wants it root-caused and fixed end-to-end — not just for a one-off "run pytest" or "why did this test fail" question with no intent to ship a fix.
 ---
 
 # Auto-fix: triage → root cause → fix → publish
@@ -20,7 +20,8 @@ failure modes (missing venv, missing Django server, silent serializer breakage).
 ## The two checkpoints are hard stops
 
 There are exactly two points where this skill must pause and get an explicit, unambiguous "go
-ahead" from the user before continuing:
+ahead" from the user before continuing (unless running with `--unattended`, where they become
+self-gates instead; see the next section):
 
 1. **After root cause analysis, before touching any code.**
 2. **After the fix is implemented and regression-tested, before opening a PR.**
@@ -31,6 +32,81 @@ to the next message is not confirmation. If the user's answer at either checkpoi
 raises doubt, go back and revise (re-analyze, or keep iterating on the fix) rather than pushing
 forward on a technicality. Never merge a PR, never push to `main`, and never force-push — the
 skill's job ends at "PR opened," the rest is the user's and CI's call.
+
+## Unattended mode (`--unattended`)
+
+If the skill is invoked with the `--unattended` flag (e.g. `/auto-fix --unattended` or
+`/auto-fix --unattended the vitest suite is red`), run the whole loop without asking the user
+anything. Only the explicit flag turns this on — phrasing like "just fix it" or "don't bother me"
+is not the flag, so in that case run the normal interactive flow. Strip the flag from the args
+before using the rest as the failure description.
+
+With nobody to say "no," the bar to keep going is higher, not lower. Every point below that would
+normally pause for the user becomes a **self-gate**: a fixed set of criteria you check yourself.
+If a gate passes, carry on. If it fails, **stop and report**: write up what you found, leave any
+branch local and unpushed, and end with a summary of why you stopped. Never pick an answer for the
+user just to keep going. Stopping early is fine. A wrong PR opened with nobody watching is not.
+
+What stays the same: every hard limit (never merge, never push to `main`, never force-push), scope
+discipline, the app-code vs. test-code rules, and the regression pass. Unattended mode only
+removes the questions. It doesn't relax any rule about what a correct fix looks like.
+
+How each decision point resolves in unattended mode:
+
+| Decision point (interactive behavior) | Unattended behavior |
+|---|---|
+| Phase 1: scope is ambiguous (ask once) | Run all three suites locally. |
+| Phase 1: `gh` isn't authenticated (ask user to log in) | Stop and report. |
+| Phase 1: fork PR with `maintainerCanModify: false` (ask how to proceed) | Stop and report. Include the proposed fix as a diff in the summary. |
+| Phase 3: failure doesn't reproduce / looks flaky (ask whether to investigate) | Stop and report it as a suspected flake, with whatever evidence you have. Don't open a PR for a flake. |
+| Phase 3: multiple independent root causes | Handle each one as its own pass through the workflow, with its own gate, branch and PR. A cause that fails its gate doesn't block the others. |
+| Checkpoint 1 | Self-gate 1 (below). |
+| Phase 4: working tree not clean (ask) | Stop and report. Never stash, reset or branch over someone's in-progress work. |
+| Phase 5: regressions caused by the fix (keep iterating) | Iterate, but give up after **3** fix attempts. Then stop and report, leaving the branch local. |
+| Phase 5: root cause turns out wrong (back to Checkpoint 1) | Redo Phase 3 once, then go through Self-gate 1 again. If it's wrong a second time, stop and report. |
+| Checkpoint 2 | Self-gate 2 (below). |
+
+### Self-gate 1 (replaces Checkpoint 1)
+
+Write the same summary Checkpoint 1 would show (failing tests, root cause as a mechanism,
+classification, intended fix) into your output so the run can be audited later. Go ahead only if
+**all** of these hold:
+
+- The failure reproduced on a targeted rerun. It's deterministic, not a flake.
+- You can point at the exact log line *and* the exact code that causes it. "Probably" or "most
+  likely" means the gate fails.
+- The classification (app code / test code / environment) is clear-cut. If it isn't, the gate
+  fails.
+- The intended fix stays within Scope discipline: no new tests, no features, no refactors.
+
+A **test-code** classification can go ahead, but the PR has to be opened as a **draft** (see
+Self-gate 2). "The test was wrong" is the convenient story, so it needs a human to look before
+anyone treats the PR as ready to merge.
+
+### Self-gate 2 (replaces Checkpoint 2)
+
+Go ahead to Phase 6 only if **all** of these hold:
+
+- Every in-scope suite is green, plus `npm run lint` if any frontend code changed.
+- `git diff main...HEAD --stat` (or against the PR head branch) only touches files on the
+  root-cause path. For an app-code fix, that means no test files at all except the model-parity
+  updates AGENTS.md requires.
+- No `pytest.mark.skip`, `.skip(`, `.only(`, or commented-out tests were added. Check the diff
+  for these, don't assume.
+- No changes to migration files except ones produced by `makemigrations`.
+
+When the gate passes, publish as Phase 6 says, with these changes:
+
+- Pass `--draft` to `gh pr create` if the classification was test code or environment/config.
+  For an app-code fix, open it as a normal PR.
+- Fill in the "Opened unattended" section of the PR template, so reviewers know no human signed
+  off on the root cause or the diff.
+- After reporting the URL, watch the checks (`gh pr checks <n> --watch`) and add the real CI
+  result to the PR. Nobody else is around to do that step.
+
+End every unattended run with a short final report: each root cause found, what happened to it
+(PR URL, draft PR URL, or "stopped at <gate/phase>: <reason>"), and any local branches left
+behind.
 
 ## Phase 1 — Scope: which suite(s), and where do the logs come from
 
